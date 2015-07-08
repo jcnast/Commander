@@ -5,10 +5,10 @@ using System.Collections.Generic;
 
 public class MapCreator : MonoBehaviour {
 	// map parameters
-	public int numRows = 0;
-	public int numCols = 0;
+	private int numRows = 0;
+	private int numCols = 0;
 	// can go from 0 to 3 (represents # of special terrain tile types enabled)
-	public int terComplex = 0;
+	private int terComplex = 0;
 	// possible number of special tiles
 	private int maxSpecial = 0;
 	private int minSpecial = 0;
@@ -24,10 +24,6 @@ public class MapCreator : MonoBehaviour {
 	private int waterCount = 0;
 	private int forestCount = 0;
 	private int sandCount = 0;
-
-	void Start(){
-		MapCreate();
-	}
 
 	// setting up the special tile allowed amounts
 	void SetUpParameters(){
@@ -236,6 +232,10 @@ public class MapCreator : MonoBehaviour {
 		for(int i = 0; i < numRows; i++){
 			for(int j = 0; j < numCols; j++){
 				GameObject curElement = (GameObject) Instantiate(mapElements[i, j], curPosn, Quaternion.identity);
+
+				BaseTile curTile = curElement.GetComponent<BaseTile>();
+				curTile.MapPosn = new Vector2(i, j);
+
 				curElement.transform.SetParent(MapHolder, true);
 				curPosn += new Vector3(1, 0, 0);
 			}
@@ -243,9 +243,16 @@ public class MapCreator : MonoBehaviour {
 		}
 	}
 
-	void MapCreate(){
+	public void CreateMap(int rows, int cols, int complexity){
+		numRows = rows;
+		numCols = cols;
+		terComplex = complexity;
 		SetUpParameters();
 		CreateGrid();
 		SpawnTiles();
+	}
+
+	public GameObject[,] getMapElements{
+		get {return mapElements;}
 	}
 }
