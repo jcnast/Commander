@@ -11,6 +11,7 @@ public class BaseTile : MonoBehaviour {
 	};
 
 	public MapManager mapManager;
+	public SpriteRenderer interactableSprite;
 
 	public TileType tileType;
 	private Vector2 mapPosn;
@@ -24,13 +25,21 @@ public class BaseTile : MonoBehaviour {
 	private BaseTile botMiddle;
 	private BaseTile botRight;
 
-	void OnMouseOver(){ // On mouse over needs collider
-		Debug.Log(transform.position);
+	void Start(){
+		interactableSprite.enabled = false;
+	}
+
+	public void LightUp(bool enabled){
+		interactableSprite.enabled = enabled;
 	}
 
 	public Vector2 MapPosn{
 		get {return mapPosn;}
 		set {mapPosn = value;}
+	}
+
+	public bool LitUp{
+		get {return interactableSprite.enabled;}
 	}
 
 	public BaseTile TopLeft{

@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviour {
 		SecondOrder
 	}
 
+	public Camera mainCamera;
+	private bool cameraCentered = false;
+
 	public MapManager mapManager;
 
 	public GameObject botSide;
@@ -80,7 +83,24 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+	private bool sideSelectStarted = false;
 	void SideSelectUpdate(){
+
+		if(!cameraCentered){
+			cameraCentered = true;
+
+			Vector3 focalPoint = (botSide.transform.position + leftSide.transform.position + topSide.transform.position + rightSide.transform.position)/4;
+			mainCamera.transform.position = new Vector3(focalPoint.x, focalPoint.y, mainCamera.transform.position.z);
+		}
+
+		if(!sideSelectStarted){
+			sideSelectStarted = true;
+
+			botManager.LightAllTiles();
+			leftManager.LightAllTiles();
+			topManager.LightAllTiles();
+			rightManager.LightAllTiles();
+		}
 
 	}
 
