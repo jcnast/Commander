@@ -234,6 +234,8 @@ public class MapCreator : MonoBehaviour {
 				GameObject curElement = (GameObject) Instantiate(mapElements[i, j], curPosn, Quaternion.identity);
 
 				BaseTile curTile = curElement.GetComponent<BaseTile>();
+				mapElements[i,j] = curElement;
+
 				curTile.MapPosn = new Vector2(i, j);
 
 				curElement.transform.SetParent(MapHolder, true);

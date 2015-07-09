@@ -13,7 +13,7 @@ public class BaseTile : MonoBehaviour {
 	public MapManager mapManager;
 
 	public TileType tileType;
-	public Vector2 mapPosn;
+	private Vector2 mapPosn;
 
 	private BaseTile topLeft;
 	private BaseTile topMiddle;
@@ -24,14 +24,8 @@ public class BaseTile : MonoBehaviour {
 	private BaseTile botMiddle;
 	private BaseTile botRight;
 
-	// Use this for initialization
-	void Start () {
-
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+	void OnMouseOver(){ // On mouse over needs collider
+		Debug.Log(transform.position);
 	}
 
 	public Vector2 MapPosn{
