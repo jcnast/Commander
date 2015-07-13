@@ -37,6 +37,12 @@ public class BaseTile : MonoBehaviour {
 		interactableSprite.enabled = enabled;
 	}
 
+	/* 
+	*******************************************
+			Publicly Available Variables
+	*******************************************
+	*/
+
 	public Vector2 MapPosn{
 		get {return mapPosn;}
 		set {mapPosn = value;}

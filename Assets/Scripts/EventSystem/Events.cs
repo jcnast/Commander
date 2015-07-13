@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+public class MapSetUpCompleteEvent: GameEvent{
+	
+}
+
 public class StartSideSelectEvent: GameEvent{
 
 }

@@ -15,8 +15,6 @@ public class SideManager : MonoBehaviour {
 	private GameObject[] sidePieces;
 	private BaseTile[] sideBaseTiles;
 
-	private bool centered = false;
-
 	void OnDestroy(){
 		Events.instance.RemoveListener<StartSideSelectEvent> (StartSideSelect);
 		Events.instance.RemoveListener<TileClickedEvent> (TileClicked);
@@ -25,22 +23,6 @@ public class SideManager : MonoBehaviour {
 	void Start () {
 		Events.instance.AddListener<StartSideSelectEvent> (StartSideSelect);
 		Events.instance.AddListener<TileClickedEvent> (TileClicked);
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		if(!centered){
-			if(sidePieces.Length > 0){
-				centered = true;
-
-				transform.position = (sidePieces[0].transform.position + sidePieces[sidePieces.Length - 1].transform.position)/2;
-
-				sideBaseTiles = new BaseTile[sidePieces.Length];
-				for(int i = 0; i < sidePieces.Length; i++){
-					sideBaseTiles[i] = sidePieces[i].GetComponent<BaseTile>();
-				}
-			}
-		}
 	}
 
 	void TileClicked(GameEvent e){
@@ -55,6 +37,14 @@ public class SideManager : MonoBehaviour {
 
 	void StartSideSelect(GameEvent e){
 		curState = SideState.SideSelect;
+
+		transform.position = (sidePieces[0].transform.position + sidePieces[sidePieces.Length - 1].transform.position)/2;
+
+		sideBaseTiles = new BaseTile[sidePieces.Length];
+		for(int i = 0; i < sidePieces.Length; i++){
+			sideBaseTiles[i] = sidePieces[i].GetComponent<BaseTile>();
+		}
+
 		LightAllTiles();
 	}
 

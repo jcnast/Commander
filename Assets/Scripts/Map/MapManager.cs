@@ -6,14 +6,18 @@ public class MapManager : MonoBehaviour {
 	public MapCreator mapCreator;
 	public GameManager gameManager;
 
-	public int numRows = 0;
-	public int numCols = 0;
+	private int numRows;
+	private int numCols;
 	// can go from 0 to 3 (represents # of special terrain tile types enabled)
-	public int terComplex = 0;
+	private int terComplex;
 
 	private GameObject[,] mapTiles;
 
 	void Start () {
+		numRows = gameManager.numRows;
+		numCols = gameManager.numCols;
+		terComplex = gameManager.terComplex;
+
 		mapCreator.CreateMap(numRows, numCols, terComplex);
 		mapTiles = mapCreator.getMapElements;
 
@@ -142,7 +146,7 @@ public class MapManager : MonoBehaviour {
 		gameManager.GetTopManager.SidePieces = topSide;
 		gameManager.GetRightManager.SidePieces = rightSide;
 
-		gameManager.SetStage = GameManager.GameStage.SideSelect;
+		Events.instance.Raise(new MapSetUpCompleteEvent());
 	}
 
 	public GameObject[,] MapTiles{
