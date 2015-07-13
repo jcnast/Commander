@@ -17,18 +17,20 @@ public class MapManager : MonoBehaviour {
 		mapCreator.CreateMap(numRows, numCols, terComplex);
 		mapTiles = mapCreator.getMapElements;
 
-		GameObject[] botSide = new GameObject[numRows];
-		GameObject[] leftSide = new GameObject[numCols];
-		GameObject[] topSide = new GameObject[numRows];
-		GameObject[] rightSide = new GameObject[numCols];
+		int botSideTile = 0;
+		GameObject[] botSide = new GameObject[numRows - 2];
+		int leftSideTile = 0;
+		GameObject[] leftSide = new GameObject[numCols - 2];
+		int topSideTile = 0;
+		GameObject[] topSide = new GameObject[numRows - 2];
+		int rightSideTile = 0;
+		GameObject[] rightSide = new GameObject[numCols - 2];
 
 		for(int i = 0; i < numRows; i++){
 			for(int j = 0; j < numCols; j++){
 				BaseTile curTile = mapTiles[i,j].GetComponent<BaseTile>();
 				if(i == 0){
-					botSide[j] = mapTiles[i,j];
 					if(j == 0){
-						leftSide[i] = mapTiles[i,j];
 
 						curTile.TopLeft = null;
 						curTile.TopMiddle = mapTiles[i + 1, j].GetComponent<BaseTile>();
@@ -39,7 +41,6 @@ public class MapManager : MonoBehaviour {
 						curTile.BotMiddle = null;
 						curTile.BotRight = null;
 					}else if(j == numRows - 1){
-						rightSide[i] = mapTiles[i,j];
 
 						curTile.TopLeft = mapTiles[i + 1, j - 1].GetComponent<BaseTile>();
 						curTile.TopMiddle = mapTiles[i + 1, j].GetComponent<BaseTile>();
@@ -50,6 +51,8 @@ public class MapManager : MonoBehaviour {
 						curTile.BotMiddle = null;
 						curTile.BotRight = null;
 					}else{
+						botSide[botSideTile] = mapTiles[i,j];
+						botSideTile++;
 
 						curTile.TopLeft = mapTiles[i + 1, j - 1].GetComponent<BaseTile>();
 						curTile.TopMiddle = mapTiles[i + 1, j].GetComponent<BaseTile>();
@@ -61,9 +64,7 @@ public class MapManager : MonoBehaviour {
 						curTile.BotRight = null;
 					}
 				}else if(i == numRows - 1){
-					topSide[j] = mapTiles[i,j];
 					if(j == 0){
-						leftSide[i] = mapTiles[i,j];
 
 						curTile.TopLeft = null;
 						curTile.TopMiddle = null;
@@ -74,7 +75,6 @@ public class MapManager : MonoBehaviour {
 						curTile.BotMiddle = mapTiles[i - 1, j].GetComponent<BaseTile>();
 						curTile.BotRight = mapTiles[i - 1, j + 1].GetComponent<BaseTile>();
 					}else if(j == numRows - 1){
-						rightSide[i] = mapTiles[i,j];
 
 						curTile.TopLeft = null;
 						curTile.TopMiddle = null;
@@ -85,6 +85,8 @@ public class MapManager : MonoBehaviour {
 						curTile.BotMiddle = mapTiles[i - 1, j].GetComponent<BaseTile>();
 						curTile.BotRight = null;
 					}else{
+						topSide[topSideTile] = mapTiles[i,j];
+						topSideTile++;
 
 						curTile.TopLeft = null;
 						curTile.TopMiddle = null;
@@ -97,7 +99,8 @@ public class MapManager : MonoBehaviour {
 					}
 				}else{
 					if(j == 0){
-						leftSide[i] = mapTiles[i,j];
+						leftSide[leftSideTile] = mapTiles[i,j];
+						leftSideTile++;
 
 						curTile.TopLeft = null;
 						curTile.TopMiddle = mapTiles[i + 1, j].GetComponent<BaseTile>();
@@ -108,7 +111,8 @@ public class MapManager : MonoBehaviour {
 						curTile.BotMiddle = mapTiles[i - 1, j].GetComponent<BaseTile>();
 						curTile.BotRight = mapTiles[i - 1, j + 1].GetComponent<BaseTile>();
 					}else if(j == numRows - 1){
-						rightSide[i] = mapTiles[i,j];
+						rightSide[rightSideTile] = mapTiles[i,j];
+						rightSideTile++;
 
 						curTile.TopLeft = mapTiles[i + 1, j - 1].GetComponent<BaseTile>();
 						curTile.TopMiddle = mapTiles[i + 1, j].GetComponent<BaseTile>();

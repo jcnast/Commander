@@ -3,14 +3,28 @@ using System.Collections;
 
 public class SideManager : MonoBehaviour {
 
+	public enum SideState{
+		None,
+		SideSelect,
+		UnitPlacing,
+		GameLoop
+	}
+
+	private SideState curState;
+
 	private GameObject[] sidePieces;
 	private BaseTile[] sideBaseTiles;
 
 	private bool centered = false;
 
-	// Use this for initialization
-	void Start () {
+	void OnDestroy(){
+		Events.instance.RemoveListener<StartSideSelectEvent> (StartSideSelect);
+		Events.instance.RemoveListener<TileClickedEvent> (TileClicked);
+	}
 
+	void Start () {
+		Events.instance.AddListener<StartSideSelectEvent> (StartSideSelect);
+		Events.instance.AddListener<TileClickedEvent> (TileClicked);
 	}
 	
 	// Update is called once per frame
@@ -27,11 +41,24 @@ public class SideManager : MonoBehaviour {
 				}
 			}
 		}
-
-
 	}
 
-	public void LightAllTiles(){
+	void TileClicked(GameEvent e){
+		if(curState == SideState.SideSelect){
+			Events.instance.Raise( new SideSelectedEvent(gameObject));
+		}else if(curState == SideState.UnitPlacing){
+			//
+		}else if(curState == SideState.GameLoop){
+			//
+		}
+	}
+
+	void StartSideSelect(GameEvent e){
+		curState = SideState.SideSelect;
+		LightAllTiles();
+	}
+
+	private void LightAllTiles(){
 		for(int i = 0; i < sidePieces.Length; i++){
 			sideBaseTiles[i].LightUp(true);
 		}

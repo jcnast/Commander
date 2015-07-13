@@ -29,6 +29,10 @@ public class BaseTile : MonoBehaviour {
 		interactableSprite.enabled = false;
 	}
 
+	void OnMouseDown(){
+		Events.instance.Raise( new TileClickedEvent(gameObject));
+	}
+
 	public void LightUp(bool enabled){
 		interactableSprite.enabled = enabled;
 	}
@@ -41,6 +45,12 @@ public class BaseTile : MonoBehaviour {
 	public bool LitUp{
 		get {return interactableSprite.enabled;}
 	}
+
+	/* 
+	***************************************
+			Adjacent tile selectors
+	***************************************
+	*/
 
 	public BaseTile TopLeft{
 		get {return topLeft;}

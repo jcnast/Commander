@@ -96,10 +96,7 @@ public class GameManager : MonoBehaviour {
 		if(!sideSelectStarted){
 			sideSelectStarted = true;
 
-			botManager.LightAllTiles();
-			leftManager.LightAllTiles();
-			topManager.LightAllTiles();
-			rightManager.LightAllTiles();
+			Events.instance.Raise( new StartSideSelectEvent( ));
 		}
 
 	}
