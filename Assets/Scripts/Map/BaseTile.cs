@@ -26,7 +26,7 @@ public class BaseTile : MonoBehaviour {
 	private BaseTile botRight;
 
 	void Start(){
-		interactableSprite.enabled = false;
+		
 	}
 
 	void OnMouseDown(){
