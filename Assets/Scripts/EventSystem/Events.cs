@@ -17,6 +17,10 @@ public class SideSelectedEvent: GameEvent{
 	}
 }
 
+public class StartUnitPlacementEvent: GameEvent{
+	
+}
+
 public class TileClickedEvent: GameEvent{
 	public GameObject Tile;
 

@@ -38,7 +38,8 @@ public class GameManager : MonoBehaviour {
 	public GameObject rightSide;
 	private SideManager rightManager;
 
-	private GameObject[] players;
+	public GameObject[] players;
+	public int curPlayer = 0;
 
 	private GameStage curStage;
 	private GameTurn curTurn;
@@ -46,10 +47,12 @@ public class GameManager : MonoBehaviour {
 
 	void OnDestroy(){
 		Events.instance.RemoveListener<MapSetUpCompleteEvent> (StartSideSelect);
+		Events.instance.RemoveListener<SideSelectedEvent> (SideSelected);
 	}
 	
 	void Start(){
 		Events.instance.AddListener<MapSetUpCompleteEvent> (StartSideSelect);
+		Events.instance.AddListener<SideSelectedEvent> (SideSelected);
 
 		botManager = botSide.GetComponent<SideManager>();
 		leftManager = leftSide.GetComponent<SideManager>();
@@ -57,21 +60,31 @@ public class GameManager : MonoBehaviour {
 		rightManager = rightSide.GetComponent<SideManager>();
 
 		players = new GameObject[numPlayers];
-		for(int i = 0; i < numPlayers; i++){
-			players[i] = new GameObject();
-			players[i].name = string.Format("Player_{0}", i + 1);
-		}
+		//for(int i = 0; i < numPlayers; i++){
+		//	players[i] = new GameObject();
+		//	players[i].name = string.Format("Player_{0}", i + 1);
+		//}
 
 		curStage = GameStage.SetUp;
 	}
 
-	void StartSideSelect(GameEvent e){
+	void StartSideSelect(MapSetUpCompleteEvent e){
 		curStage = GameStage.SideSelect;
 
 		Vector3 focalPoint = (botSide.transform.position + leftSide.transform.position + topSide.transform.position + rightSide.transform.position)/4;
 		mainCamera.transform.position = new Vector3(focalPoint.x, focalPoint.y, mainCamera.transform.position.z);
 
 		Events.instance.Raise( new StartSideSelectEvent( ));
+	}
+
+	void SideSelected(SideSelectedEvent e){
+		players[curPlayer] = e.Side;
+		if(curPlayer == players.Length - 1){
+			curPlayer = 0;
+			Events.instance.Raise( new StartUnitPlacementEvent( ));
+		}else{
+			curPlayer++;
+		}
 	}
 
 	/* 

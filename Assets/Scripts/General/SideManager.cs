@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class SideManager : MonoBehaviour {
 
@@ -11,6 +13,7 @@ public class SideManager : MonoBehaviour {
 	}
 
 	private SideState curState;
+	private bool selected = false;
 
 	private GameObject[] sidePieces;
 	private BaseTile[] sideBaseTiles;
@@ -18,33 +21,37 @@ public class SideManager : MonoBehaviour {
 	void OnDestroy(){
 		Events.instance.RemoveListener<MapSetUpCompleteEvent> (SideSetUp);
 		Events.instance.RemoveListener<StartSideSelectEvent> (StartSideSelect);
+		Events.instance.RemoveListener<StartUnitPlacementEvent> (StartUnitPlacement);
 		Events.instance.RemoveListener<TileClickedEvent> (TileClicked);
 	}
 
 	void Start () {
 		Events.instance.AddListener<MapSetUpCompleteEvent> (SideSetUp);
 		Events.instance.AddListener<StartSideSelectEvent> (StartSideSelect);
+		Events.instance.AddListener<StartUnitPlacementEvent> (StartUnitPlacement);
 		Events.instance.AddListener<TileClickedEvent> (TileClicked);
 	}
 
-	void TileClicked(GameEvent e){
-		//if(sideBaseTiles.Find(e.Tile)){
-		//	Debug.Log(e.Tile);
-			if(curState == SideState.SideSelect){
+	void TileClicked(TileClickedEvent e){
+		if(Array.Find(sidePieces, x => x == e.Tile)){
+			if(curState == SideState.SideSelect && !selected){
+				selected = true;
+
 				Events.instance.Raise( new SideSelectedEvent(gameObject));
+				LightAllTiles(false);
 			}else if(curState == SideState.UnitPlacing){
 				//
 			}else if(curState == SideState.GameLoop){
 				//
 			}
-		//}
+		}
 	}
 
-	void SideSetUp(GameEvent e){
+	void SideSetUp(MapSetUpCompleteEvent e){
 		transform.position = (sidePieces[0].transform.position + sidePieces[sidePieces.Length - 1].transform.position)/2;
 	}
 
-	void StartSideSelect(GameEvent e){
+	void StartSideSelect(StartSideSelectEvent e){
 		curState = SideState.SideSelect;
 
 		sideBaseTiles = new BaseTile[sidePieces.Length];
@@ -52,12 +59,18 @@ public class SideManager : MonoBehaviour {
 			sideBaseTiles[i] = sidePieces[i].GetComponent<BaseTile>();
 		}
 
-		LightAllTiles();
+		LightAllTiles(true);
 	}
 
-	private void LightAllTiles(){
+	void StartUnitPlacement(StartUnitPlacementEvent e){
+		curState = SideState.UnitPlacing;
+
+		LightAllTiles(false);
+	}
+
+	private void LightAllTiles(bool lit){
 		for(int i = 0; i < sidePieces.Length; i++){
-			sideBaseTiles[i].LightUp(true);
+			sideBaseTiles[i].LightUp(lit);
 		}
 	}
 
