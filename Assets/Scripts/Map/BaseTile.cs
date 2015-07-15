@@ -15,6 +15,7 @@ public class BaseTile : MonoBehaviour {
 
 	public TileType tileType;
 	private Vector2 mapPosn;
+	private BaseUnit unitOnTile;
 
 	private BaseTile topLeft;
 	private BaseTile topMiddle;
@@ -24,10 +25,6 @@ public class BaseTile : MonoBehaviour {
 	private BaseTile botLeft;
 	private BaseTile botMiddle;
 	private BaseTile botRight;
-
-	void Start(){
-		
-	}
 
 	void OnMouseDown(){
 		Events.instance.Raise( new TileClickedEvent(gameObject));
@@ -46,6 +43,11 @@ public class BaseTile : MonoBehaviour {
 	public Vector2 MapPosn{
 		get {return mapPosn;}
 		set {mapPosn = value;}
+	}
+
+	public BaseUnit UnitOnTile{
+		get {return unitOnTile;}
+		set {unitOnTile = value;}
 	}
 
 	public bool LitUp{
