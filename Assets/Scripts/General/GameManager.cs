@@ -29,6 +29,8 @@ public class GameManager : MonoBehaviour {
 	// can go from 2 to 4 (represents # players)
 	public int numPlayers = 0;
 
+	public GameObject[] unitList = new GameObject[4];
+
 	public GameObject botSide;
 	private SideManager botManager;
 	public GameObject leftSide;
@@ -39,7 +41,7 @@ public class GameManager : MonoBehaviour {
 	private SideManager rightManager;
 
 	public GameObject[] players;
-	public int curPlayer = 0;
+	private int curPlayer = 0;
 
 	private GameStage curStage;
 	private GameTurn curTurn;
@@ -48,17 +50,21 @@ public class GameManager : MonoBehaviour {
 	void OnDestroy(){
 		Events.instance.RemoveListener<MapSetUpCompleteEvent> (StartSideSelect);
 		Events.instance.RemoveListener<SideSelectedEvent> (SideSelected);
+		Events.instance.RemoveListener<StartUnitPlacementEvent> (StartUnitPlacement);
 	}
 	
 	void Start(){
 		Events.instance.AddListener<MapSetUpCompleteEvent> (StartSideSelect);
 		Events.instance.AddListener<SideSelectedEvent> (SideSelected);
+		Events.instance.AddListener<StartUnitPlacementEvent> (StartUnitPlacement);
 
+		// get the SideManager component for each side
 		botManager = botSide.GetComponent<SideManager>();
 		leftManager = leftSide.GetComponent<SideManager>();
 		topManager = topSide.GetComponent<SideManager>();
 		rightManager = rightSide.GetComponent<SideManager>();
 
+		// create the players to be rotated through
 		players = new GameObject[numPlayers];
 		//for(int i = 0; i < numPlayers; i++){
 		//	players[i] = new GameObject();
@@ -68,6 +74,7 @@ public class GameManager : MonoBehaviour {
 		curStage = GameStage.SetUp;
 	}
 
+	// side select started, center the camera
 	void StartSideSelect(MapSetUpCompleteEvent e){
 		curStage = GameStage.SideSelect;
 
@@ -77,13 +84,36 @@ public class GameManager : MonoBehaviour {
 		Events.instance.Raise( new StartSideSelectEvent( ));
 	}
 
+	// once a side has been selected
 	void SideSelected(SideSelectedEvent e){
+		// assigned side to player
 		players[curPlayer] = e.Side;
+		// if it is the last player, move on to unit placement
 		if(curPlayer == players.Length - 1){
 			curPlayer = 0;
-			Events.instance.Raise( new StartUnitPlacementEvent( ));
+			Events.instance.Raise( new StartUnitPlacementEvent());
 		}else{
 			curPlayer++;
+		}
+	}
+
+	// unit placement has started
+	void StartUnitPlacement(StartUnitPlacementEvent e){
+		curStage = GameStage.UnitPlacement;
+		// start unit placement for the first player
+		Events.instance.Raise(new PlaceUnitsEvent(players[curPlayer]));
+	}
+
+	// once all units are placed for a specific player
+	void UnitPlaced(UnitsPlacedEvent e){
+		// if it was the last player, move on to the game loop
+		if(curPlayer == players.Length - 1){
+			curPlayer = 0;
+			inGameLoop = true;
+			// send out GameLoop starting event
+		}else{
+			curPlayer++;
+			Events.instance.Raise(new PlaceUnitsEvent(players[curPlayer]));
 		}
 	}
 

@@ -26,10 +26,12 @@ public class BaseTile : MonoBehaviour {
 	private BaseTile botMiddle;
 	private BaseTile botRight;
 
+	// tile was clicked on
 	void OnMouseDown(){
 		Events.instance.Raise( new TileClickedEvent(gameObject));
 	}
 
+	// light up tile
 	public void LightUp(bool enabled){
 		interactableSprite.enabled = enabled;
 	}
@@ -40,16 +42,19 @@ public class BaseTile : MonoBehaviour {
 	*******************************************
 	*/
 
+	// map position in the grid
 	public Vector2 MapPosn{
 		get {return mapPosn;}
 		set {mapPosn = value;}
 	}
 
+	// the current unit on the tile
 	public BaseUnit UnitOnTile{
 		get {return unitOnTile;}
 		set {unitOnTile = value;}
 	}
 
+	// is the tile lit up?
 	public bool LitUp{
 		get {return interactableSprite.enabled;}
 	}

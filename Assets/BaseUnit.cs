@@ -3,13 +3,22 @@ using System.Collections;
 
 public class BaseUnit : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+	private BaseTile curTile;
+
+	public float maxHealth;
+	public float maxDamage;
+	public int maxMove;
+	public int maxInitiate;
+
+	/* 
+	*******************************************
+			Publicly Available Variables
+	*******************************************
+	*/
+
+	// tile tjat unit is currently on
+	public BaseTile CurTile{
+		get {return curTile;}
+		set {curTile = value;}
 	}
 }
