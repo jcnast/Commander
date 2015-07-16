@@ -28,26 +28,44 @@ public class StartUnitPlacementEvent: GameEvent{
 // tell a player to place all of their units
 public class PlaceUnitsEvent: GameEvent{
 	public GameObject Player;
+	public GameObject Side;
 
-	public PlaceUnitsEvent(GameObject player){
+	public PlaceUnitsEvent(GameObject player, GameObject side){
 		Player = player;
+		Side = side;
+	}
+}
+
+// a unit wants to be placed on a given tile
+public class SingleUnitPlacedEvent: GameEvent{
+	public Transform Tile;
+	public Vector3 Rotation;
+
+	public SingleUnitPlacedEvent(Transform tile, Vector3 rotation){
+		Tile = tile;
+		Rotation = rotation;
 	}
 }
 
 // once a player has placed all of their units
 public class UnitsPlacedEvent: GameEvent{
-	public GameObject Side;
+	public GameObject Player;
 
-	public UnitsPlacedEvent(GameObject side){
-		Side = side;
+	public UnitsPlacedEvent(GameObject player){
+		Player = player;
 	}
+}
+
+// issue your orders to your units
+public class IssueOrdersEvent: GameEvent{
+
 }
 
 // when a tile was clicked
 public class TileClickedEvent: GameEvent{
-	public GameObject Tile;
+	public Transform Tile;
 
-	public TileClickedEvent(GameObject tile){
+	public TileClickedEvent(Transform tile){
 		Tile = tile;
 	}
 }

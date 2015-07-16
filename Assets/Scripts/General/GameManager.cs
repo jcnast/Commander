@@ -29,8 +29,6 @@ public class GameManager : MonoBehaviour {
 	// can go from 2 to 4 (represents # players)
 	public int numPlayers = 0;
 
-	public GameObject[] unitList = new GameObject[4];
-
 	public GameObject botSide;
 	private SideManager botManager;
 	public GameObject leftSide;
@@ -40,23 +38,26 @@ public class GameManager : MonoBehaviour {
 	public GameObject rightSide;
 	private SideManager rightManager;
 
-	public GameObject[] players;
+	public GameObject playerObject;
+	private GameObject[] players;
+	private GameObject[] activeSides;
 	private int curPlayer = 0;
 
 	private GameStage curStage;
 	private GameTurn curTurn;
-	private bool inGameLoop = false;
 
 	void OnDestroy(){
 		Events.instance.RemoveListener<MapSetUpCompleteEvent> (StartSideSelect);
 		Events.instance.RemoveListener<SideSelectedEvent> (SideSelected);
 		Events.instance.RemoveListener<StartUnitPlacementEvent> (StartUnitPlacement);
+		Events.instance.RemoveListener<UnitsPlacedEvent> (UnitsPlaced);
 	}
 	
 	void Start(){
 		Events.instance.AddListener<MapSetUpCompleteEvent> (StartSideSelect);
 		Events.instance.AddListener<SideSelectedEvent> (SideSelected);
 		Events.instance.AddListener<StartUnitPlacementEvent> (StartUnitPlacement);
+		Events.instance.AddListener<UnitsPlacedEvent> (UnitsPlaced);
 
 		// get the SideManager component for each side
 		botManager = botSide.GetComponent<SideManager>();
@@ -65,11 +66,12 @@ public class GameManager : MonoBehaviour {
 		rightManager = rightSide.GetComponent<SideManager>();
 
 		// create the players to be rotated through
+		activeSides = new GameObject[numPlayers];
 		players = new GameObject[numPlayers];
-		//for(int i = 0; i < numPlayers; i++){
-		//	players[i] = new GameObject();
-		//	players[i].name = string.Format("Player_{0}", i + 1);
-		//}
+		for(int i = 0; i < numPlayers; i++){
+			players[i] = (GameObject) Instantiate(playerObject, transform.position, Quaternion.identity);
+			players[i].name = string.Format("Player_{0}", i + 1);
+		}
 
 		curStage = GameStage.SetUp;
 	}
@@ -87,9 +89,9 @@ public class GameManager : MonoBehaviour {
 	// once a side has been selected
 	void SideSelected(SideSelectedEvent e){
 		// assigned side to player
-		players[curPlayer] = e.Side;
+		activeSides[curPlayer] = e.Side;
 		// if it is the last player, move on to unit placement
-		if(curPlayer == players.Length - 1){
+		if(curPlayer == activeSides.Length - 1){
 			curPlayer = 0;
 			Events.instance.Raise( new StartUnitPlacementEvent());
 		}else{
@@ -101,19 +103,19 @@ public class GameManager : MonoBehaviour {
 	void StartUnitPlacement(StartUnitPlacementEvent e){
 		curStage = GameStage.UnitPlacement;
 		// start unit placement for the first player
-		Events.instance.Raise(new PlaceUnitsEvent(players[curPlayer]));
+		Events.instance.Raise(new PlaceUnitsEvent(players[curPlayer], activeSides[curPlayer]));
 	}
 
 	// once all units are placed for a specific player
-	void UnitPlaced(UnitsPlacedEvent e){
+	void UnitsPlaced(UnitsPlacedEvent e){
 		// if it was the last player, move on to the game loop
-		if(curPlayer == players.Length - 1){
+		if(curPlayer == activeSides.Length - 1){
 			curPlayer = 0;
-			inGameLoop = true;
-			// send out GameLoop starting event
+			curTurn = GameTurn.IssueOrders;
+			Events.instance.Raise(new IssueOrdersEvent());
 		}else{
 			curPlayer++;
-			Events.instance.Raise(new PlaceUnitsEvent(players[curPlayer]));
+			Events.instance.Raise(new PlaceUnitsEvent(players[curPlayer], activeSides[curPlayer]));
 		}
 	}
 
@@ -122,6 +124,14 @@ public class GameManager : MonoBehaviour {
 			Publicly Available Variables
 	*******************************************
 	*/
+
+	public GameStage CurrentGameStage{
+		get {return curStage;}
+	}
+
+	public GameTurn CurrentGameTurn{
+		get {return curTurn;}
+	}
 
 	public SideManager GetBotManager{
 		get {return botManager;}

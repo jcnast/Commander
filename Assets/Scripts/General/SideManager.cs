@@ -12,6 +12,8 @@ public class SideManager : MonoBehaviour {
 		GameLoop
 	}
 
+	public Vector3 unitRotation;
+
 	private SideState curState;
 	private bool selected = false;
 
@@ -23,6 +25,7 @@ public class SideManager : MonoBehaviour {
 		Events.instance.RemoveListener<StartSideSelectEvent> (StartSideSelect);
 		Events.instance.RemoveListener<StartUnitPlacementEvent> (StartUnitPlacement);
 		Events.instance.RemoveListener<PlaceUnitsEvent> (PlaceUnits);
+		Events.instance.RemoveListener<UnitsPlacedEvent> (UnitsPlaced);
 		Events.instance.RemoveListener<TileClickedEvent> (TileClicked);
 	}
 
@@ -31,13 +34,14 @@ public class SideManager : MonoBehaviour {
 		Events.instance.AddListener<StartSideSelectEvent> (StartSideSelect);
 		Events.instance.AddListener<StartUnitPlacementEvent> (StartUnitPlacement);
 		Events.instance.AddListener<PlaceUnitsEvent> (PlaceUnits);
+		Events.instance.AddListener<UnitsPlacedEvent> (UnitsPlaced);
 		Events.instance.AddListener<TileClickedEvent> (TileClicked);
 	}
 
 	// what to do when a tile was clicked
 	void TileClicked(TileClickedEvent e){
 		// things to do during side set up (can only access the specific tiles)
-		if(Array.Find(sidePieces, x => x == e.Tile)){
+		if(Array.Find(sidePieces, x => x == e.Tile.gameObject)){
 			// if side is being selected, send event saying one has been chosen
 			if(curState == SideState.SideSelect && !selected){
 				selected = true;
@@ -46,11 +50,8 @@ public class SideManager : MonoBehaviour {
 				LightAllTiles(false);
 			// place unit on one of the tiles along the side
 			}else if(curState == SideState.UnitPlacing){
-				//
+				Events.instance.Raise(new SingleUnitPlacedEvent(e.Tile, unitRotation));
 			}
-		// things to be done if we are within the game loop
-		}else if(curState == SideState.GameLoop){
-			//
 		}
 	}
 
@@ -78,10 +79,18 @@ public class SideManager : MonoBehaviour {
 
 	// check if this side is doing unit placement
 	void PlaceUnits(PlaceUnitsEvent e){
-		if(e.Player == gameObject){
+		if(e.Side == gameObject){
 			LightAllTiles(true);
 
 			curState = SideState.UnitPlacing;
+		}
+	}
+
+	void UnitsPlaced(UnitsPlacedEvent e){
+		if(curState == SideState.UnitPlacing){
+			LightAllTiles(false);
+
+			curState = SideState.None;
 		}
 	}
 

@@ -28,7 +28,7 @@ public class BaseTile : MonoBehaviour {
 
 	// tile was clicked on
 	void OnMouseDown(){
-		Events.instance.Raise( new TileClickedEvent(gameObject));
+		Events.instance.Raise( new TileClickedEvent(transform));
 	}
 
 	// light up tile
