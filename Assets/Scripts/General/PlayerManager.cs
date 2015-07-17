@@ -45,11 +45,16 @@ public class PlayerManager : MonoBehaviour {
 		// make sure the unit can be placed
 		if(curState == PlayerState.PlacingUnits && Array.Find(sideTiles, x => x == e.Tile.gameObject)){ // the second condition is added in because the event system is out of whack
 			if(curUnit < unitList.Count){
-				GameObject newUnit = (GameObject) Instantiate(unitList[curUnit], e.Tile.position, Quaternion.Euler(e.Rotation.x, e.Rotation.y, e.Rotation.z));
-				newUnit.transform.SetParent(transform);
-				activeUnits.Add(newUnit.transform);
+				BaseTile tile = e.Tile.GetComponent<BaseTile>();
+				BaseUnit unit = unitList[curUnit].GetComponent<KnightUnit>();
+				// can't spawn knight in water
+				if(tile.tileType != BaseTile.TileType.Water || unit == null){
+					GameObject newUnit = (GameObject) Instantiate(unitList[curUnit], e.Tile.position, Quaternion.Euler(e.Rotation.x, e.Rotation.y, e.Rotation.z));
+					newUnit.transform.SetParent(transform);
+					activeUnits.Add(newUnit.transform);
 
-				curUnit++;
+					curUnit++;
+				}
 			}
 			if(curUnit == unitList.Count){
 				curState = PlayerState.Waiting;
