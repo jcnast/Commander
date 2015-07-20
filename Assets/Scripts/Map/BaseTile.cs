@@ -14,6 +14,8 @@ public class BaseTile : MonoBehaviour {
 	public SpriteRenderer interactableSprite;
 
 	public TileType tileType;
+	public int movementCost;
+	public int attackCost;
 	private Vector2 mapPosn;
 	private BaseUnit unitOnTile;
 

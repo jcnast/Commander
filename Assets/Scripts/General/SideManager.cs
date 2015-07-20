@@ -26,6 +26,7 @@ public class SideManager : MonoBehaviour {
 		Events.instance.RemoveListener<StartUnitPlacementEvent> (StartUnitPlacement);
 		Events.instance.RemoveListener<PlaceUnitsEvent> (PlaceUnits);
 		Events.instance.RemoveListener<UnitsPlacedEvent> (UnitsPlaced);
+		Events.instance.RemoveListener<GameStartEvent> (GameStart);
 		Events.instance.RemoveListener<TileClickedEvent> (TileClicked);
 	}
 
@@ -35,6 +36,7 @@ public class SideManager : MonoBehaviour {
 		Events.instance.AddListener<StartUnitPlacementEvent> (StartUnitPlacement);
 		Events.instance.AddListener<PlaceUnitsEvent> (PlaceUnits);
 		Events.instance.AddListener<UnitsPlacedEvent> (UnitsPlaced);
+		Events.instance.AddListener<GameStartEvent> (GameStart);
 		Events.instance.AddListener<TileClickedEvent> (TileClicked);
 	}
 
@@ -92,6 +94,10 @@ public class SideManager : MonoBehaviour {
 
 			curState = SideState.None;
 		}
+	}
+
+	void GameStart(GameStartEvent e){
+		Destroy(gameObject);
 	}
 
 	// light up all tiles assigned to this side

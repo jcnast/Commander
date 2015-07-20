@@ -56,8 +56,8 @@ public class UnitsPlacedEvent: GameEvent{
 	}
 }
 
-// issue your orders to your units
-public class IssueOrdersEvent: GameEvent{
+// start the game loop
+public class GameStartEvent: GameEvent{
 
 }
 

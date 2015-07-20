@@ -3,6 +3,14 @@ using System.Collections;
 
 public class BaseUnit : MonoBehaviour {
 
+	public enum UnitState{
+		Waiting,
+		RecievingOrders,
+		DoingOrderOne,
+		ChooseingOrderTwo,
+		DoingOrderTwo,
+	}
+
 	public enum AttackType{
 		Circle,
 		Line,
@@ -17,6 +25,12 @@ public class BaseUnit : MonoBehaviour {
 	// higher initiatives go first
 	public int maxInitiate;
 
+	private UnitState curState;
+
+	void OnMouseDown(){
+		Debug.Log("clicked unit");
+	}
+
 	/* 
 	*******************************************
 			Publicly Available Variables
@@ -27,5 +41,10 @@ public class BaseUnit : MonoBehaviour {
 	public BaseTile CurTile{
 		get {return curTile;}
 		set {curTile = value;}
+	}
+
+	public UnitState CurState{
+		get {return curState;}
+		set {curState = value;}
 	}
 }

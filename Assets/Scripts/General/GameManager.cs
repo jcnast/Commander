@@ -51,6 +51,7 @@ public class GameManager : MonoBehaviour {
 		Events.instance.RemoveListener<SideSelectedEvent> (SideSelected);
 		Events.instance.RemoveListener<StartUnitPlacementEvent> (StartUnitPlacement);
 		Events.instance.RemoveListener<UnitsPlacedEvent> (UnitsPlaced);
+		Events.instance.RemoveListener<GameStartEvent> (GameStart);
 	}
 	
 	void Start(){
@@ -58,6 +59,7 @@ public class GameManager : MonoBehaviour {
 		Events.instance.AddListener<SideSelectedEvent> (SideSelected);
 		Events.instance.AddListener<StartUnitPlacementEvent> (StartUnitPlacement);
 		Events.instance.AddListener<UnitsPlacedEvent> (UnitsPlaced);
+		Events.instance.AddListener<GameStartEvent> (GameStart);
 
 		// get the SideManager component for each side
 		botManager = botSide.GetComponent<SideManager>();
@@ -112,11 +114,16 @@ public class GameManager : MonoBehaviour {
 		if(curPlayer == activeSides.Length - 1){
 			curPlayer = 0;
 			curTurn = GameTurn.IssueOrders;
-			Events.instance.Raise(new IssueOrdersEvent());
+			Events.instance.Raise(new GameStartEvent());
 		}else{
 			curPlayer++;
 			Events.instance.Raise(new PlaceUnitsEvent(players[curPlayer], activeSides[curPlayer]));
 		}
+	}
+
+	void GameStart(GameStartEvent e){
+		curStage = GameStage.GameLoop;
+		curTurn = GameTurn.IssueOrders;
 	}
 
 	/* 
