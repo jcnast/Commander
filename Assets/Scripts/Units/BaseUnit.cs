@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class BaseUnit : MonoBehaviour {
 
@@ -7,7 +8,7 @@ public class BaseUnit : MonoBehaviour {
 		Waiting,
 		RecievingOrders,
 		DoingOrderOne,
-		ChooseingOrderTwo,
+		ChoosingOrderTwo,
 		DoingOrderTwo,
 	}
 
@@ -16,6 +17,14 @@ public class BaseUnit : MonoBehaviour {
 		Line,
 		Arc
 	}
+
+	public enum OrderType{
+		Move,
+		Attack,
+		Hold
+	}
+
+	public GameObject orderUI;
 
 	private BaseTile curTile;
 
@@ -27,8 +36,35 @@ public class BaseUnit : MonoBehaviour {
 
 	private UnitState curState;
 
+	private List<OrderType> orders = new List<OrderType>();
+
+	void OnDestroy(){
+		Events.instance.RemoveListener<IssueOrdersEvent> (IssueOrders);
+	}
+
+	void Awake(){
+		Events.instance.AddListener<IssueOrdersEvent> (IssueOrders);
+		orderUI.SetActive(false);
+
+		curState = UnitState.Waiting;
+	}
+
 	void OnMouseDown(){
-		Debug.Log("clicked unit");
+		if(curState == UnitState.Waiting){
+			// nothing?
+		}else if(curState == UnitState.RecievingOrders){
+			orderUI.SetActive(true);
+		}else if(curState == UnitState.DoingOrderOne){
+			// nothing?
+		}else if(curState == UnitState.ChoosingOrderTwo){
+			// show orders/start process
+		}else if(curState == UnitState.DoingOrderTwo){
+			// nothing?
+		}
+	}
+
+	void IssueOrders(IssueOrdersEvent e){
+		curState = UnitState.RecievingOrders;
 	}
 
 	/* 
@@ -46,5 +82,9 @@ public class BaseUnit : MonoBehaviour {
 	public UnitState CurState{
 		get {return curState;}
 		set {curState = value;}
+	}
+
+	public List<OrderType> Orders{
+		get {return orders;}
 	}
 }

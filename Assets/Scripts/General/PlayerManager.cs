@@ -22,13 +22,17 @@ public class PlayerManager : MonoBehaviour {
 	void OnDestroy(){
 		Events.instance.RemoveListener<PlaceUnitsEvent> (PlaceUnits);
 		Events.instance.RemoveListener<SingleUnitPlacedEvent> (UnitPlaced);
+		Events.instance.RemoveListener<IssueOrdersEvent> (IssueOrders);
 		Events.instance.RemoveListener<TileClickedEvent> (TileClicked);
+		Events.instance.RemoveListener<UnitClickedEvent> (UnitClicked);
 	}
 
 	void Start(){
 		Events.instance.AddListener<PlaceUnitsEvent> (PlaceUnits);
 		Events.instance.AddListener<SingleUnitPlacedEvent> (UnitPlaced);
-		Events.instance.AddListener<TileClickedEvent> (TileClicked);	
+		Events.instance.AddListener<IssueOrdersEvent> (IssueOrders);
+		Events.instance.AddListener<TileClickedEvent> (TileClicked);
+		Events.instance.AddListener<UnitClickedEvent> (UnitClicked);	
 	}
 
 	// what to do when units should start to be placed
@@ -63,9 +67,16 @@ public class PlayerManager : MonoBehaviour {
 		}
 	}
 
+	void IssueOrders(IssueOrdersEvent e){
+		curState = PlayerState.Commanding;
+	}
 
 	// what to do when a tile was clicked
 	void TileClicked(TileClickedEvent e){
 		
+	}
+
+	void UnitClicked(UnitClickedEvent e){
+
 	}
 }

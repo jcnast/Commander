@@ -123,6 +123,9 @@ public class GameManager : MonoBehaviour {
 
 	void GameStart(GameStartEvent e){
 		curStage = GameStage.GameLoop;
+
+		Events.instance.Raise(new IssueOrdersEvent());
+		
 		curTurn = GameTurn.IssueOrders;
 	}
 

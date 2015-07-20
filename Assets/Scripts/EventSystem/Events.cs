@@ -61,11 +61,24 @@ public class GameStartEvent: GameEvent{
 
 }
 
+public class IssueOrdersEvent: GameEvent{
+
+}
+
 // when a tile was clicked
 public class TileClickedEvent: GameEvent{
 	public Transform Tile;
 
 	public TileClickedEvent(Transform tile){
 		Tile = tile;
+	}
+}
+
+// when a unit was clicked
+public class UnitClickedEvent: GameEvent{
+	public Transform Unit;
+
+	public UnitClickedEvent(Transform unit){
+		Unit = unit;
 	}
 }
