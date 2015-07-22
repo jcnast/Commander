@@ -51,13 +51,21 @@ public class PlayerManager : MonoBehaviour {
 			if(curUnit < unitList.Count){
 				BaseTile tile = e.Tile.GetComponent<BaseTile>();
 				BaseUnit unit = unitList[curUnit].GetComponent<KnightUnit>();
-				// can't spawn knight in water
-				if(tile.tileType != BaseTile.TileType.Water || unit == null){
-					GameObject newUnit = (GameObject) Instantiate(unitList[curUnit], e.Tile.position, Quaternion.Euler(e.Rotation.x, e.Rotation.y, e.Rotation.z));
-					newUnit.transform.SetParent(transform);
-					activeUnits.Add(newUnit.transform);
+				// can't spawn two units on one tile
+				if(tile.UnitOnTile == null){
+					// can't spawn knight in water
+					if(tile.tileType != BaseTile.TileType.Water || unit == null){
+						GameObject newUnit = (GameObject) Instantiate(unitList[curUnit], e.Tile.position, Quaternion.Euler(e.Rotation.x, e.Rotation.y, e.Rotation.z));
+						BaseUnit newBaseUnit = newUnit.GetComponent<BaseUnit>();
 
-					curUnit++;
+						newUnit.transform.SetParent(transform);
+						activeUnits.Add(newUnit.transform);
+						// assignt the respective tile/unit variables
+						tile.UnitOnTile = newBaseUnit;
+						newBaseUnit.CurTile = tile;
+
+						curUnit++;
+					}
 				}
 			}
 			if(curUnit == unitList.Count){
