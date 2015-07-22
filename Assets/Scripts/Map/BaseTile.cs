@@ -12,11 +12,14 @@ public class BaseTile : MonoBehaviour {
 
 	public MapManager mapManager;
 	public SpriteRenderer interactableSprite;
+	private InputManager inputManager;
 
 	public TileType tileType;
 	public int movementCost;
 	public int attackCost;
 	private Vector2 mapPosn;
+	private float spriteExtents;
+
 	private BaseUnit unitOnTile;
 
 	private BaseTile topLeft;
@@ -28,9 +31,27 @@ public class BaseTile : MonoBehaviour {
 	private BaseTile botMiddle;
 	private BaseTile botRight;
 
-	// tile was clicked on
-	void OnMouseDown(){
-		Events.instance.Raise( new TileClickedEvent(transform));
+	void Start(){
+		inputManager = InputManager.Instance;
+
+		spriteExtents = transform.GetComponent<SpriteRenderer>().bounds.extents.x;
+	}
+
+	void Update(){
+		// check if UI was clicked on, and if there is a unit on the tile
+		if(!inputManager.UISelected && unitOnTile == null){
+			// check if the mouse is within the sprite's bounds
+			if(inputManager.WorldCursorPosition.x >= transform.position.x - spriteExtents &&
+				inputManager.WorldCursorPosition.x <= transform.position.x + spriteExtents &&
+				inputManager.WorldCursorPosition.y >= transform.position.y - spriteExtents &&
+				inputManager.WorldCursorPosition.y <= transform.position.y + spriteExtents){
+				// check if click was released
+				if(inputManager.ClickUp){
+					// raise TileClickedEvent
+					Events.instance.Raise( new TileClickedEvent(transform));
+				}
+			}
+		}
 	}
 
 	// light up tile
