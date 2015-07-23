@@ -92,6 +92,9 @@ public class BaseUnit : MonoBehaviour {
 						// nothing?
 					}else if(curState == UnitState.RecievingOrders){
 						orderUI.SetActive(true);
+						holdCommand.interactable = false;
+						moveCommand.interactable = false;
+						attackCommand.interactable = false;
 					}else if(curState == UnitState.DoingOrderOne){
 						// nothing?
 					}else if(curState == UnitState.ChoosingOrderTwo){
@@ -118,6 +121,8 @@ public class BaseUnit : MonoBehaviour {
 
 	void ChangeActiveOrder(int currentOrder){
 		activeOrder = currentOrder;
+		OrdersInteractable(false);
+		CommandsInteractable(true);
 		Debug.Log(currentOrder);
 		// set buttons to interactable
 	}
@@ -134,6 +139,20 @@ public class BaseUnit : MonoBehaviour {
 			Debug.Log(activeOrder);
 		}
 		// set buttons to non-interactable
+	}
+
+	// set the order interactability
+	void OrdersInteractable(bool interact){
+		orderOneButton.interactable = interact;
+		orderTwoAButton.interactable = interact;
+		orderTwoBButton.interactable = interact;
+	}
+
+	// set the command interactability
+	void CommandsInteractable(bool interact){
+		holdCommand.interactable = interact;
+		moveCommand.interactable = interact;
+		attackCommand.interactable = interact;
 	}
 
 	/* 
