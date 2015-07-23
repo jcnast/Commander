@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -24,7 +25,15 @@ public class BaseUnit : MonoBehaviour {
 		Arc
 	}
 
+	// all UI components
 	public GameObject orderUI;
+	public Button orderOne;
+	public Button orderTwoA;
+	public Button orderTwoB;
+	public Button holdCommand;
+	public Button moveCommand;
+	public Button attackCommand;
+
 	private InputManager inputManager;
 
 	private BaseTile curTile;
@@ -44,8 +53,16 @@ public class BaseUnit : MonoBehaviour {
 		Events.instance.RemoveListener<IssueOrdersEvent> (IssueOrders);
 	}
 
-	void Awake(){
+	void Start(){
 		Events.instance.AddListener<IssueOrdersEvent> (IssueOrders);
+
+		// UI button delegate assignment
+		orderOne.onClick.AddListener(() => {OrderOne();});
+		orderTwoA.onClick.AddListener(() => {OrderTwoA();});
+		orderTwoB.onClick.AddListener(() => {OrderTwoB();});
+		holdCommand.onClick.AddListener(() => {HoldCommand();});
+		moveCommand.onClick.AddListener(() => {MoveCommand();});
+		attackCommand.onClick.AddListener(() => {AttackCommand();});
 
 		inputManager = InputManager.Instance;
 		orderUI.SetActive(false);
@@ -85,6 +102,36 @@ public class BaseUnit : MonoBehaviour {
 
 	void IssueOrders(IssueOrdersEvent e){
 		curState = UnitState.RecievingOrders;
+	}
+
+	/* 
+	*******************************************
+				Button Functions
+	*******************************************
+	*/
+
+	void OrderOne(){
+		Debug.Log("order one");
+	}
+
+	void OrderTwoA(){
+		Debug.Log("order two A");
+	}
+
+	void OrderTwoB(){
+		Debug.Log("order two B");
+	}
+
+	void HoldCommand(){
+		Debug.Log("order hold");
+	}
+
+	void MoveCommand(){
+		Debug.Log("order move");
+	}
+
+	void AttackCommand(){
+		Debug.Log("order attack");
 	}
 
 	/* 
