@@ -14,9 +14,9 @@ public class BaseUnit : MonoBehaviour {
 	}
 
 	public enum OrderType{
+		Hold,
 		Move,
 		Attack,
-		Hold
 	}
 
 	public enum AttackType{
@@ -27,9 +27,9 @@ public class BaseUnit : MonoBehaviour {
 
 	// all UI components
 	public GameObject orderUI;
-	public Button orderOne;
-	public Button orderTwoA;
-	public Button orderTwoB;
+	public Button orderOneButton;
+	public Button orderTwoAButton;
+	public Button orderTwoBButton;
 	public Button holdCommand;
 	public Button moveCommand;
 	public Button attackCommand;
@@ -47,22 +47,28 @@ public class BaseUnit : MonoBehaviour {
 
 	private UnitState curState;
 
-	private List<OrderType> orders = new List<OrderType>();
+	private OrderType orderOne; // 1
+	private Vector3 orderOnePosition = Vector3.zero;
+	private OrderType orderTwoA; // 2
+	private Vector3 orderTwoAPosition = Vector3.zero;
+	private OrderType orderTwoB; // 3
+	private Vector3 orderTwoBPosition = Vector3.zero;
+	private int activeOrder;
 
 	void OnDestroy(){
 		Events.instance.RemoveListener<IssueOrdersEvent> (IssueOrders);
 	}
 
-	void Start(){
+	void Awake(){
 		Events.instance.AddListener<IssueOrdersEvent> (IssueOrders);
 
 		// UI button delegate assignment
-		orderOne.onClick.AddListener(() => {OrderOne();});
-		orderTwoA.onClick.AddListener(() => {OrderTwoA();});
-		orderTwoB.onClick.AddListener(() => {OrderTwoB();});
-		holdCommand.onClick.AddListener(() => {HoldCommand();});
-		moveCommand.onClick.AddListener(() => {MoveCommand();});
-		attackCommand.onClick.AddListener(() => {AttackCommand();});
+		orderOneButton.onClick.AddListener(() => {ChangeActiveOrder(1);});
+		orderTwoAButton.onClick.AddListener(() => {ChangeActiveOrder(2);});
+		orderTwoBButton.onClick.AddListener(() => {ChangeActiveOrder(3);});
+		holdCommand.onClick.AddListener(() => {SetOrderCommand(OrderType.Hold);});
+		moveCommand.onClick.AddListener(() => {SetOrderCommand(OrderType.Move);});
+		attackCommand.onClick.AddListener(() => {SetOrderCommand(OrderType.Attack);});
 
 		inputManager = InputManager.Instance;
 		orderUI.SetActive(false);
@@ -110,28 +116,24 @@ public class BaseUnit : MonoBehaviour {
 	*******************************************
 	*/
 
-	void OrderOne(){
-		Debug.Log("order one");
+	void ChangeActiveOrder(int currentOrder){
+		activeOrder = currentOrder;
+		Debug.Log(currentOrder);
+		// set buttons to interactable
 	}
 
-	void OrderTwoA(){
-		Debug.Log("order two A");
-	}
-
-	void OrderTwoB(){
-		Debug.Log("order two B");
-	}
-
-	void HoldCommand(){
-		Debug.Log("order hold");
-	}
-
-	void MoveCommand(){
-		Debug.Log("order move");
-	}
-
-	void AttackCommand(){
-		Debug.Log("order attack");
+	void SetOrderCommand(OrderType command){
+		if(activeOrder == 1){
+			orderOne = command;
+			Debug.Log(activeOrder);
+		}else if(activeOrder == 2){
+			orderTwoA = command;
+			Debug.Log(activeOrder);
+		}else if(activeOrder == 3){
+			orderTwoB = command;
+			Debug.Log(activeOrder);
+		}
+		// set buttons to non-interactable
 	}
 
 	/* 
@@ -151,7 +153,27 @@ public class BaseUnit : MonoBehaviour {
 		set {curState = value;}
 	}
 
-	public List<OrderType> Orders{
-		get {return orders;}
+	public OrderType OrderOne{
+		get {return orderOne;}
+	}
+
+	public Vector3 OrderOnePosition{
+		get {return orderOnePosition;}
+	}
+
+	public OrderType OrderTwoA{
+		get {return orderTwoA;}
+	}
+
+	public Vector3 OrderTwoAPosition{
+		get {return orderTwoAPosition;}
+	}
+
+	public OrderType OrderTwoB{
+		get {return orderTwoB;}
+	}
+
+	public Vector3 OrderTwoBPosition{
+		get {return orderTwoBPosition;}
 	}
 }
