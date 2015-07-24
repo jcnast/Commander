@@ -18,6 +18,8 @@ public class GameManager : MonoBehaviour {
 		SecondOrder
 	}
 
+	static GameManager instance;
+
 	public Camera mainCamera;
 
 	public MapManager mapManager;
@@ -60,6 +62,13 @@ public class GameManager : MonoBehaviour {
 		Events.instance.AddListener<StartUnitPlacementEvent> (StartUnitPlacement);
 		Events.instance.AddListener<UnitsPlacedEvent> (UnitsPlaced);
 		Events.instance.AddListener<GameStartEvent> (GameStart);
+
+		// set instance
+		if(instance == null){
+			instance = gameObject.GetComponent<GameManager>();
+		}else{
+			Destroy(gameObject);
+		}
 
 		// get the SideManager component for each side
 		botManager = botSide.GetComponent<SideManager>();
@@ -135,12 +144,28 @@ public class GameManager : MonoBehaviour {
 	*******************************************
 	*/
 
+	public static GameManager Instance{
+		get {return instance;}
+	}
+
 	public GameStage CurrentGameStage{
 		get {return curStage;}
 	}
 
 	public GameTurn CurrentGameTurn{
 		get {return curTurn;}
+	}
+
+	public int NumRows{
+		get {return numRows;}
+	}
+
+	public int NumCols{
+		get {return numCols;}
+	}
+
+	public GameObject[,] MapTiles{
+		get {return mapManager.MapTiles;}
 	}
 
 	public SideManager GetBotManager{
