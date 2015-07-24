@@ -202,6 +202,33 @@ public class BaseUnit : MonoBehaviour {
 		}
 	}
 
+	void DetermineAttackPosition(){
+		// current tile position
+		int curX = (int) curTile.MapPosn.y;
+		int curY = (int) curTile.MapPosn.x;
+
+		// different things depending on attack pattern;
+		if(attackType == AttackType.Circle){
+			CircleAttackTiles();
+		}else if(attackType == AttackType.Line){
+			LineAttackTiles();
+		}else if(attackType == AttackType.Arc){
+			ArcAttackTiles();
+		}
+	}
+
+	void CircleAttackTiles(){
+		// get circle attack tiles (can use DeterminePosition)
+	}
+
+	void LineAttackTiles(){
+		// get line attack tiles
+	}
+
+	void ArcAttackTiles(){
+		// get arc attack tiles
+	}
+
 	// set each order's command and go-to position
 	void SetOrderValues(Vector3 position){
 		// determine what sprite to use for representation of command
@@ -227,14 +254,14 @@ public class BaseUnit : MonoBehaviour {
 			orderTwoAPosition = position;
 
 			// change sprite to indicate order's command
-			orderOneButton.GetComponent<Image>().sprite = curSprite;
+			orderTwoAButton.GetComponent<Image>().sprite = curSprite;
 		}else if(activeOrder == 3){
 			// set values of orderTwoB
 			orderTwoB = activeCommand;
 			orderTwoBPosition = position;
 
 			// change sprite to indicate order's command
-			orderOneButton.GetComponent<Image>().sprite = curSprite;
+			orderTwoBButton.GetComponent<Image>().sprite = curSprite;
 		}
 	}
 
