@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour {
 		Events.instance.RemoveListener<GameStartEvent> (GameStart);
 	}
 	
-	void Start(){
+	void Awake(){
 		Events.instance.AddListener<MapSetUpCompleteEvent> (StartSideSelect);
 		Events.instance.AddListener<SideSelectedEvent> (SideSelected);
 		Events.instance.AddListener<StartUnitPlacementEvent> (StartUnitPlacement);
@@ -90,6 +90,11 @@ public class GameManager : MonoBehaviour {
 	// side select started, center the camera
 	void StartSideSelect(MapSetUpCompleteEvent e){
 		curStage = GameStage.SideSelect;
+
+		botManager.SideSetUp();
+		leftManager.SideSetUp();
+		topManager.SideSetUp();
+		rightManager.SideSetUp();
 
 		Vector3 focalPoint = (botSide.transform.position + leftSide.transform.position + topSide.transform.position + rightSide.transform.position)/4;
 		mainCamera.transform.position = new Vector3(focalPoint.x, focalPoint.y, mainCamera.transform.position.z);

@@ -21,7 +21,6 @@ public class SideManager : MonoBehaviour {
 	private BaseTile[] sideBaseTiles;
 
 	void OnDestroy(){
-		Events.instance.RemoveListener<MapSetUpCompleteEvent> (SideSetUp);
 		Events.instance.RemoveListener<StartSideSelectEvent> (StartSideSelect);
 		Events.instance.RemoveListener<StartUnitPlacementEvent> (StartUnitPlacement);
 		Events.instance.RemoveListener<PlaceUnitsEvent> (PlaceUnits);
@@ -30,8 +29,7 @@ public class SideManager : MonoBehaviour {
 		Events.instance.RemoveListener<TileClickedEvent> (TileClicked);
 	}
 
-	void Start () {
-		Events.instance.AddListener<MapSetUpCompleteEvent> (SideSetUp);
+	void Awake () {
 		Events.instance.AddListener<StartSideSelectEvent> (StartSideSelect);
 		Events.instance.AddListener<StartUnitPlacementEvent> (StartUnitPlacement);
 		Events.instance.AddListener<PlaceUnitsEvent> (PlaceUnits);
@@ -58,7 +56,7 @@ public class SideManager : MonoBehaviour {
 	}
 
 	// center the side (necessary with multiple cameras)
-	void SideSetUp(MapSetUpCompleteEvent e){
+	public void SideSetUp(){
 		transform.position = (sidePieces[0].transform.position + sidePieces[sidePieces.Length - 1].transform.position)/2;
 	}
 
@@ -76,7 +74,9 @@ public class SideManager : MonoBehaviour {
 
 	// unit placement has started
 	void StartUnitPlacement(StartUnitPlacementEvent e){
-		LightAllTiles(false);
+		if(curState != SideState.UnitPlacing){
+			LightAllTiles(false);
+		}
 	}
 
 	// check if this side is doing unit placement

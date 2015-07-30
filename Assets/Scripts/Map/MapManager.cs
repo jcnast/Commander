@@ -14,6 +14,7 @@ public class MapManager : MonoBehaviour {
 	private GameObject[,] mapTiles;
 
 	void Start () {
+
 		numRows = gameManager.numRows;
 		numCols = gameManager.numCols;
 		terComplex = gameManager.terComplex;

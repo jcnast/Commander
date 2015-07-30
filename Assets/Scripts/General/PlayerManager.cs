@@ -27,7 +27,7 @@ public class PlayerManager : MonoBehaviour {
 		Events.instance.RemoveListener<UnitClickedEvent> (UnitClicked);
 	}
 
-	void Start(){
+	void Awake(){
 		Events.instance.AddListener<PlaceUnitsEvent> (PlaceUnits);
 		Events.instance.AddListener<SingleUnitPlacedEvent> (UnitPlaced);
 		Events.instance.AddListener<IssueOrdersEvent> (IssueOrders);
