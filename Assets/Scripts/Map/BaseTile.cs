@@ -59,6 +59,34 @@ public class BaseTile : MonoBehaviour {
 		interactableSprite.enabled = enabled;
 	}
 
+	// get all adjacent tiles
+	public BaseTile[] AllAdjacentTiles(){
+		BaseTile[] allAdjacentTiles = new BaseTile[8];
+
+		allAdjacentTiles[0] = topLeft;
+		allAdjacentTiles[1] = topMiddle;
+		allAdjacentTiles[2] = topRight;
+		allAdjacentTiles[3] = midLeft;
+		allAdjacentTiles[4] = midRight;
+		allAdjacentTiles[5] = botLeft;
+		allAdjacentTiles[6] = botMiddle;
+		allAdjacentTiles[7] = botRight;
+
+		return allAdjacentTiles;
+	}
+
+	// get directly adjacent tiles
+	public BaseTile[] DirectlyAdjacentTiles(){
+		BaseTile[] directlyAdjacentTiles = new BaseTile[4];
+
+		directlyAdjacentTiles[0] = topMiddle;
+		directlyAdjacentTiles[1] = midLeft;
+		directlyAdjacentTiles[2] = midRight;
+		directlyAdjacentTiles[3] = botMiddle;
+
+		return directlyAdjacentTiles;
+	}
+
 	/* 
 	*******************************************
 			Publicly Available Variables

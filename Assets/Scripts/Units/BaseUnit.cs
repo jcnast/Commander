@@ -56,7 +56,7 @@ public class BaseUnit : MonoBehaviour {
 	public float maxHealth;
 	public float maxDamage;
 	public int maxMove;
-	public int maxInitiate; // higher initiatives go first
+	public int maxInitiative; // higher initiatives go first
 
 	// unity attack information
 	public AttackType attackType;
@@ -68,16 +68,24 @@ public class BaseUnit : MonoBehaviour {
 
 	// orders and their target positions
 	private OrderType orderOne; // 1
-	private Vector3 orderOnePosition = Vector3.zero;
+	private List<Vector3> orderOnePosition = new List<Vector3>();
 	private OrderType orderTwoA; // 2
-	private Vector3 orderTwoAPosition = Vector3.zero;
+	private List<Vector3> orderTwoAPosition = new List<Vector3>();
 	private OrderType orderTwoB; // 3
-	private Vector3 orderTwoBPosition = Vector3.zero;
+	private List<Vector3> orderTwoBPosition = new List<Vector3>();
 
 	// active order information
 	private int activeOrder = 0;
 	private OrderType activeCommand = OrderType.Null;
 	private List<GameObject> activeTiles = new List<GameObject>();
+	private List<BaseTile> activeBaseTiles = new List<BaseTile>();
+	private List<int> activeTilesMovesLeft = new List<int>();
+
+	/* 
+	*******************************************
+			Standard Unity Functions
+	*******************************************
+	*/
 
 	void OnDestroy(){
 		// remove event listeners
@@ -100,6 +108,8 @@ public class BaseUnit : MonoBehaviour {
 		// get input manager and set UI to false
 		inputManager = InputManager.Instance;
 		orderUI.SetActive(false);
+		CommandsInteractable(false);
+		OrdersInteractable(true);
 
 		// UI button delegate assignment
 		orderOneButton.onClick.AddListener(() => {ChangeActiveOrder(1);});
@@ -132,10 +142,63 @@ public class BaseUnit : MonoBehaviour {
 		}
 	}
 
+	/* 
+	*******************************************
+			Click Event Listeners
+	*******************************************
+	*/
+
 	// Issue orders event recieves
 	void IssueOrders(IssueOrdersEvent e){
 		// set state to recieving orders
 		curState = UnitState.RecievingOrders;
+	}
+
+	void TileClicked(TileClickedEvent e){
+		if(curState == UnitState.RecievingOrders){
+			if(activeTiles.Contains(e.Tile.gameObject)){
+				// if tile is active, set position of order
+				List<Vector3> orderPath = new List<Vector3>();
+
+				orderPath.Add(e.Tile.position);
+
+				SetOrderValues(orderPath);
+
+				// and clear active tiles (as one was chosen)
+				ClearActiveTiles();
+			}else{
+				if(orderUI.activeSelf){// if UI is open, close UI
+					orderUI.SetActive(false);
+				}else if(activeTiles.Count != 0){// if tiles are active
+					// do nothing
+				}
+			}
+		}
+	}
+
+	void UnitClicked(UnitClickedEvent e){
+		if(e.Unit == transform){
+			if(curState == UnitState.Waiting){
+				// nothing?
+			}else if(curState == UnitState.RecievingOrders){
+				// display order UI
+				orderUI.SetActive(true);
+
+				// set what can be clicked on
+				CommandsInteractable(false);
+				OrdersInteractable(true);
+			}else if(curState == UnitState.DoingOrderOne){
+				// nothing?
+			}else if(curState == UnitState.ChoosingOrderTwo){
+				// show orders/start process
+			}else if(curState == UnitState.DoingOrderTwo){
+				// nothing?
+			}
+		}else{
+			// different unit was selected, remove clickable tiles and remove UI
+			orderUI.SetActive(false);
+			ClearActiveTiles();
+		}
 	}
 
 	/* 
@@ -160,8 +223,8 @@ public class BaseUnit : MonoBehaviour {
 		activeCommand = command;
 
 		// set buttons to non-interactable
-		OrdersInteractable(true);
 		CommandsInteractable(false);
+		OrdersInteractable(true);
 
 		// hide UI
 		orderUI.SetActive(false);
@@ -175,6 +238,12 @@ public class BaseUnit : MonoBehaviour {
 		}
 	}
 
+	/* 
+	*******************************************
+				Command Functions
+	*******************************************
+	*/
+
 	// highlight all tiles within range
 	void DeterminePosition(int numSquares){
 		// current tile position
@@ -183,7 +252,9 @@ public class BaseUnit : MonoBehaviour {
 
 		// if numSquares is 0, return current tile
 		if(numSquares == 0){
-			SetOrderValues(transform.position);
+			List<Vector3> selfPositionList = new List<Vector3>();
+			selfPositionList.Add(transform.position);
+			SetOrderValues(selfPositionList);
 		}else{
 			// find all tiles within range
 			for(int y = 0; y < numCols; y++){
@@ -193,6 +264,7 @@ public class BaseUnit : MonoBehaviour {
 					// if distance is in range, add to optional tiles
 					if(dx + dy <= numSquares){
 						activeTiles.Add(mapTiles[y,x]);
+						activeBaseTiles.Add(mapTiles[y,x].GetComponent<BaseTile>());
 					}
 				}
 			}
@@ -218,7 +290,7 @@ public class BaseUnit : MonoBehaviour {
 	}
 
 	void CircleAttackTiles(){
-		// get circle attack tiles (can use DeterminePosition)
+		// get circle attack tiles (do not use DeterminePosition - need to change how distance is calculated)
 	}
 
 	void LineAttackTiles(){
@@ -230,7 +302,7 @@ public class BaseUnit : MonoBehaviour {
 	}
 
 	// set each order's command and go-to position
-	void SetOrderValues(Vector3 position){
+	void SetOrderValues(List<Vector3> position){
 		// determine what sprite to use for representation of command
 		Sprite curSprite = nullSprite;
 		if(activeCommand == OrderType.Hold){
@@ -295,55 +367,6 @@ public class BaseUnit : MonoBehaviour {
 
 	/* 
 	*******************************************
-			Click Event Listener
-	*******************************************
-	*/
-
-	void TileClicked(TileClickedEvent e){
-		if(curState == UnitState.RecievingOrders){
-			if(activeTiles.Contains(e.Tile.gameObject)){
-				// if tile is active, set position of order
-				SetOrderValues(e.Tile.position);
-
-				// and clear active tiles (as one was chosen)
-				ClearActiveTiles();
-			}else{
-				if(orderUI.activeSelf){// if UI is open, close UI
-					orderUI.SetActive(false);
-				}else if(activeTiles.Count != 0){// if tiles are active
-					// do nothing
-				}
-			}
-		}
-	}
-
-	void UnitClicked(UnitClickedEvent e){
-		if(e.Unit == transform){
-			if(curState == UnitState.Waiting){
-				// nothing?
-			}else if(curState == UnitState.RecievingOrders){
-				// display order UI
-				orderUI.SetActive(true);
-
-				// set what can be clicked on
-				OrdersInteractable(true);
-				CommandsInteractable(false);
-			}else if(curState == UnitState.DoingOrderOne){
-				// nothing?
-			}else if(curState == UnitState.ChoosingOrderTwo){
-				// show orders/start process
-			}else if(curState == UnitState.DoingOrderTwo){
-				// nothing?
-			}
-		}else{
-			// different unit was selected, remove clickable tiles and remove UI
-			orderUI.SetActive(false);
-			ClearActiveTiles();
-		}
-	}
-
-	/* 
-	*******************************************
 			Publicly Available Variables
 	*******************************************
 	*/
@@ -363,7 +386,7 @@ public class BaseUnit : MonoBehaviour {
 		get {return orderOne;}
 	}
 
-	public Vector3 OrderOnePosition{
+	public List<Vector3> OrderOnePosition{
 		get {return orderOnePosition;}
 	}
 
@@ -371,7 +394,7 @@ public class BaseUnit : MonoBehaviour {
 		get {return orderTwoA;}
 	}
 
-	public Vector3 OrderTwoAPosition{
+	public List<Vector3> OrderTwoAPosition{
 		get {return orderTwoAPosition;}
 	}
 
@@ -379,7 +402,7 @@ public class BaseUnit : MonoBehaviour {
 		get {return orderTwoB;}
 	}
 
-	public Vector3 OrderTwoBPosition{
+	public List<Vector3> OrderTwoBPosition{
 		get {return orderTwoBPosition;}
 	}
 }
