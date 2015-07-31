@@ -12,7 +12,7 @@ public class PathManager : MonoBehaviour {
 
 	[System.Serializable]
 	// to keep track of the tiles along the path to a specific point
-	public class PathTile : MonoBehaviour {
+	public class PathTile {
 		// parameters of the PathTile
 		private BaseTile previousTile;
 		private BaseTile currentTile;
@@ -93,13 +93,15 @@ public class PathManager : MonoBehaviour {
 
 		// add to optionalTiles
 		for(int i = 0; i < startingTiles.Length; i++){
-			PathTile newPathTile = new PathTile();
-			newPathTile.PreviousTile = null;
-			newPathTile.CurrentTile = startingTiles[i];
-			newPathTile.MovesLeft = Radius - startingTiles[i].MovementCost;
+			if(startingTiles[i] != null){
+				PathTile newPathTile = new PathTile();
+				newPathTile.PreviousTile = null;
+				newPathTile.CurrentTile = startingTiles[i];
+				newPathTile.MovesLeft = Radius - startingTiles[i].MovementCost;
 
-			recentTiles.Add(newPathTile);
-			optionalTiles.Add(newPathTile);
+				recentTiles.Add(newPathTile);
+				optionalTiles.Add(newPathTile);
+			}
 		}
 
 		while(recentTiles.Count != 0){
@@ -110,7 +112,7 @@ public class PathManager : MonoBehaviour {
 					BaseTile[] attatchedTiles = recentTiles[j].CurrentTile.DirectlyAdjacentTiles();
 
 					for(int k = 0; k < attatchedTiles.Length; k++){
-						if(attatchedTiles[k] != startingTile){
+						if(attatchedTiles[k] != startingTile && attatchedTiles[k] != null){
 							// create PathTile, add to optionaltiles if within range
 							PathTile newPathTile = new PathTile();
 							newPathTile.PreviousTile = recentTiles[j].CurrentTile;
