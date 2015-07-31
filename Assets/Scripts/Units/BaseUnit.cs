@@ -44,6 +44,7 @@ public class BaseUnit : MonoBehaviour {
 
 	// singleton values that get references regularily
 	private InputManager inputManager;
+	private PathManager pathManager;
 	private int numRows;
 	private int numCols;
 	private GameObject[,] mapTiles;
@@ -80,6 +81,7 @@ public class BaseUnit : MonoBehaviour {
 	private List<GameObject> activeTiles = new List<GameObject>();
 	private List<BaseTile> activeBaseTiles = new List<BaseTile>();
 	private List<int> activeTilesMovesLeft = new List<int>();
+	public List<PathManager.PathTile> activePathTiles;
 
 	/* 
 	*******************************************
@@ -107,6 +109,7 @@ public class BaseUnit : MonoBehaviour {
 
 		// get input manager and set UI to false
 		inputManager = InputManager.Instance;
+		pathManager = PathManager.Instance;
 		orderUI.SetActive(false);
 		CommandsInteractable(false);
 		OrdersInteractable(true);
@@ -250,6 +253,7 @@ public class BaseUnit : MonoBehaviour {
 		int curX = (int) curTile.MapPosn.y;
 		int curY = (int) curTile.MapPosn.x;
 
+		activePathTiles = pathManager.FindOptionalTiles(PathManager.PathType.Movement, attackType, curTile, maxMove);
 		// if numSquares is 0, return current tile
 		if(numSquares == 0){
 			List<Vector3> selfPositionList = new List<Vector3>();

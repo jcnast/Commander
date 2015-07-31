@@ -105,6 +105,10 @@ public class BaseTile : MonoBehaviour {
 		set {unitOnTile = value;}
 	}
 
+	public int MovementCost{
+		get {return movementCost;}
+	}
+
 	// is the tile lit up?
 	public bool LitUp{
 		get {return interactableSprite.enabled;}
