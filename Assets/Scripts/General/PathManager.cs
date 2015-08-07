@@ -36,17 +36,8 @@ public class PathManager : MonoBehaviour {
 
 	static PathManager instance;
 
-	// info about the map
-	private int numRows;
-	private int numCols;
-	private GameObject[,] mapTiles;
-
 	// Use this for initialization
 	void Start () {
-		mapTiles = GameManager.Instance.MapTiles;
-		numRows = GameManager.Instance.NumRows;
-		numCols = GameManager.Instance.NumCols;
-
 		// set instance
 		if(instance == null){
 			instance = gameObject.GetComponent<PathManager>();
@@ -93,14 +84,18 @@ public class PathManager : MonoBehaviour {
 
 		// add to optionalTiles
 		for(int i = 0; i < startingTiles.Length; i++){
+			// make sure it is a tile
 			if(startingTiles[i] != null){
-				PathTile newPathTile = new PathTile();
-				newPathTile.PreviousTile = null;
-				newPathTile.CurrentTile = startingTiles[i];
-				newPathTile.MovesLeft = Radius - startingTiles[i].MovementCost;
+				// make sure enough moves are left
+				if(Radius - startingTiles[i].MovementCost >= 0){
+					PathTile newPathTile = new PathTile();
+					newPathTile.PreviousTile = null;
+					newPathTile.CurrentTile = startingTiles[i];
+					newPathTile.MovesLeft = Radius - startingTiles[i].MovementCost;
 
-				recentTiles.Add(newPathTile);
-				optionalTiles.Add(newPathTile);
+					recentTiles.Add(newPathTile);
+					optionalTiles.Add(newPathTile);
+				}
 			}
 		}
 
@@ -112,34 +107,38 @@ public class PathManager : MonoBehaviour {
 					BaseTile[] attatchedTiles = recentTiles[j].CurrentTile.DirectlyAdjacentTiles();
 
 					for(int k = 0; k < attatchedTiles.Length; k++){
+						// make sure it is a tile, and it is not the starting tile
 						if(attatchedTiles[k] != startingTile && attatchedTiles[k] != null){
-							// create PathTile, add to optionaltiles if within range
-							PathTile newPathTile = new PathTile();
-							newPathTile.PreviousTile = recentTiles[j].CurrentTile;
-							newPathTile.CurrentTile = attatchedTiles[k];
-							newPathTile.MovesLeft = recentTiles[j].MovesLeft - attatchedTiles[k].MovementCost;
+							// check if enough moves are left
+							if(recentTiles[j].MovesLeft - attatchedTiles[k].MovementCost >= 0){
+								// create PathTile, add to optionaltiles if within range
+								PathTile newPathTile = new PathTile();
+								newPathTile.PreviousTile = recentTiles[j].CurrentTile;
+								newPathTile.CurrentTile = attatchedTiles[k];
+								newPathTile.MovesLeft = recentTiles[j].MovesLeft - attatchedTiles[k].MovementCost;
 
-							// if the current tile already is in the optional tiles and has more steps remaining replace the existing tile
-							bool alreadyIn = false;
-							for(int l = 0; l < optionalTiles.Count; l++){
-								if(optionalTiles[l].CurrentTile == newPathTile.CurrentTile){
-									if(optionalTiles[l].MovesLeft <= newPathTile.MovesLeft){
-										optionalTiles.Remove(optionalTiles[l]);
-										optionalTiles.Add(newPathTile);
+								// if the current tile already is in the optional tiles and has more steps remaining replace the existing tile
+								bool alreadyIn = false;
+								for(int l = 0; l < optionalTiles.Count; l++){
+									if(optionalTiles[l].CurrentTile == newPathTile.CurrentTile){
+										if(optionalTiles[l].MovesLeft <= newPathTile.MovesLeft){
+											optionalTiles.Remove(optionalTiles[l]);
+											optionalTiles.Add(newPathTile);
 
-										newRecentTiles.Add(newPathTile);
+											newRecentTiles.Add(newPathTile);
 
-										alreadyIn = true;
-										break;
+											alreadyIn = true;
+											break;
+										}
 									}
 								}
-							}
 
-							// otherwise, just add the tile
-							if(!alreadyIn){
-								optionalTiles.Add(newPathTile);
+								// otherwise, just add the tile
+								if(!alreadyIn){
+									optionalTiles.Add(newPathTile);
 
-								newRecentTiles.Add(newPathTile);
+									newRecentTiles.Add(newPathTile);
+								}
 							}
 						}
 					}

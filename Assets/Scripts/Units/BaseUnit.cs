@@ -45,9 +45,6 @@ public class BaseUnit : MonoBehaviour {
 	// singleton values that get references regularily
 	private InputManager inputManager;
 	private PathManager pathManager;
-	private int numRows;
-	private int numCols;
-	private GameObject[,] mapTiles;
 
 	// info about position on board (and in world)
 	private BaseTile curTile;
@@ -78,9 +75,6 @@ public class BaseUnit : MonoBehaviour {
 	// active order information
 	private int activeOrder = 0;
 	private OrderType activeCommand = OrderType.Null;
-	private List<GameObject> activeTiles = new List<GameObject>();
-	private List<BaseTile> activeBaseTiles = new List<BaseTile>();
-	private List<int> activeTilesMovesLeft = new List<int>();
 	public List<PathManager.PathTile> activePathTiles;
 
 	/* 
@@ -101,11 +95,6 @@ public class BaseUnit : MonoBehaviour {
 		Events.instance.AddListener<IssueOrdersEvent> (IssueOrders);
 		Events.instance.AddListener<TileClickedEvent> (TileClicked);
 		Events.instance.AddListener<UnitClickedEvent> (UnitClicked);
-
-		// get Map Tiles
-		mapTiles = GameManager.Instance.MapTiles;
-		numRows = GameManager.Instance.NumRows;
-		numCols = GameManager.Instance.NumCols;
 
 		// get input manager and set UI to false
 		inputManager = InputManager.Instance;
@@ -159,11 +148,18 @@ public class BaseUnit : MonoBehaviour {
 
 	void TileClicked(TileClickedEvent e){
 		if(curState == UnitState.RecievingOrders){
-			if(activeTiles.Contains(e.Tile.gameObject)){
+			int index = activePathTiles.FindIndex(x => x.CurrentTile == e.Tile);
+			if(index >= 0){
 				// if tile is active, set position of order
 				List<Vector3> orderPath = new List<Vector3>();
 
+/* ***************************************************************************************************
+									WORK HERE
+*************************************************************************************************** */
+
+
 				orderPath.Add(e.Tile.position);
+				// follow Path Tiles back to null to create list of path tiles
 
 				SetOrderValues(orderPath);
 
@@ -172,7 +168,7 @@ public class BaseUnit : MonoBehaviour {
 			}else{
 				if(orderUI.activeSelf){// if UI is open, close UI
 					orderUI.SetActive(false);
-				}else if(activeTiles.Count != 0){// if tiles are active
+				}else if(activePathTiles.Count != 0){// if tiles are active
 					// do nothing
 				}
 			}
@@ -249,60 +245,22 @@ public class BaseUnit : MonoBehaviour {
 
 	// highlight all tiles within range
 	void DeterminePosition(int numSquares){
-		// current tile position
-		int curX = (int) curTile.MapPosn.y;
-		int curY = (int) curTile.MapPosn.x;
-
-		activePathTiles = pathManager.FindOptionalTiles(PathManager.PathType.Movement, attackType, curTile, maxMove);
 		// if numSquares is 0, return current tile
 		if(numSquares == 0){
 			List<Vector3> selfPositionList = new List<Vector3>();
 			selfPositionList.Add(transform.position);
 			SetOrderValues(selfPositionList);
 		}else{
-			// find all tiles within range
-			for(int y = 0; y < numCols; y++){
-				for(int x = 0; x < numRows; x++){
-					int dx = Mathf.Abs(x - curX);
-					int dy = Mathf.Abs(y - curY);
-					// if distance is in range, add to optional tiles
-					if(dx + dy <= numSquares){
-						activeTiles.Add(mapTiles[y,x]);
-						activeBaseTiles.Add(mapTiles[y,x].GetComponent<BaseTile>());
-					}
-				}
-			}
+			// find active path tiles
+			activePathTiles = pathManager.FindOptionalTiles(PathManager.PathType.Movement, attackType, curTile, maxMove);
 
 			// display the tiles that can be clicked on
 			ShowActiveTiles(true);
 		}
 	}
 
-	void DetermineAttackPosition(){
-		// current tile position
-		int curX = (int) curTile.MapPosn.y;
-		int curY = (int) curTile.MapPosn.x;
-
-		// different things depending on attack pattern;
-		if(attackType == AttackType.Circle){
-			CircleAttackTiles();
-		}else if(attackType == AttackType.Line){
-			LineAttackTiles();
-		}else if(attackType == AttackType.Arc){
-			ArcAttackTiles();
-		}
-	}
-
-	void CircleAttackTiles(){
-		// get circle attack tiles (do not use DeterminePosition - need to change how distance is calculated)
-	}
-
-	void LineAttackTiles(){
-		// get line attack tiles
-	}
-
-	void ArcAttackTiles(){
-		// get arc attack tiles
+	protected virtual void DetermineAttackPosition(){
+		// each unit should have it's own function
 	}
 
 	// set each order's command and go-to position
@@ -357,8 +315,8 @@ public class BaseUnit : MonoBehaviour {
 
 	// light/de-light active tiles
 	void ShowActiveTiles(bool show){
-		for(int i = 0; i < activeTiles.Count; i++){
-			activeTiles[i].GetComponent<BaseTile>().LightUp(show);
+		for(int i = 0; i < activePathTiles.Count; i++){
+			activePathTiles[i].CurrentTile.LightUp(show);
 		}
 	}
 
@@ -366,7 +324,7 @@ public class BaseUnit : MonoBehaviour {
 		activeOrder = 0;
 		activeCommand = OrderType.Null;
 		ShowActiveTiles(false);
-		activeTiles.Clear();
+		activePathTiles.Clear();
 	}
 
 	/* 

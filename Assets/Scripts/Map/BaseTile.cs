@@ -99,6 +99,11 @@ public class BaseTile : MonoBehaviour {
 		set {mapPosn = value;}
 	}
 
+	// tile type
+	public TileType TypeOfTile{
+		get {return tileType;}
+	}
+
 	// the current unit on the tile
 	public BaseUnit UnitOnTile{
 		get {return unitOnTile;}
