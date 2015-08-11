@@ -43,12 +43,12 @@ public class BaseUnit : MonoBehaviour {
 	public Sprite attackSprite;
 
 	// singleton values that get references regularily
-	private InputManager inputManager;
-	private PathManager pathManager;
+	protected InputManager inputManager;
+	protected PathManager pathManager;
 
 	// info about position on board (and in world)
-	private BaseTile curTile;
-	private float spriteExtents;
+	protected BaseTile curTile;
+	protected float spriteExtents;
 
 	// general unit information
 	public float maxHealth;
@@ -62,20 +62,20 @@ public class BaseUnit : MonoBehaviour {
 	public int attackNum = 0;
 
 	// current state of the unit
-	private UnitState curState;
+	protected UnitState curState;
 
 	// orders and their target positions
-	private OrderType orderOne; // 1
-	private List<Vector3> orderOnePosition = new List<Vector3>();
-	private OrderType orderTwoA; // 2
-	private List<Vector3> orderTwoAPosition = new List<Vector3>();
-	private OrderType orderTwoB; // 3
-	private List<Vector3> orderTwoBPosition = new List<Vector3>();
+	protected OrderType orderOne; // 1
+	protected List<Vector3> orderOnePosition = new List<Vector3>();
+	protected OrderType orderTwoA; // 2
+	protected List<Vector3> orderTwoAPosition = new List<Vector3>();
+	protected OrderType orderTwoB; // 3
+	protected List<Vector3> orderTwoBPosition = new List<Vector3>();
 
 	// active order information
-	private int activeOrder = 0;
-	private OrderType activeCommand = OrderType.Null;
-	public List<PathManager.PathTile> activePathTiles;
+	protected int activeOrder = 0;
+	protected OrderType activeCommand = OrderType.Null;
+	protected List<PathManager.PathTile> activePathTiles;
 
 	/* 
 	*******************************************
@@ -259,7 +259,7 @@ public class BaseUnit : MonoBehaviour {
 		}
 	}
 
-	protected virtual void DetermineAttackPosition(){
+	protected virtual void DetermineAttackPosition(int Range){
 		// each unit should have it's own function
 	}
 
