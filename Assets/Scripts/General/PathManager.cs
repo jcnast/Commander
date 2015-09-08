@@ -52,26 +52,6 @@ public class PathManager : MonoBehaviour {
 	*******************************************
 	*/
 
-	// determine the path to take from the given tile information
-	public List<PathTile> FindOptionalTiles(PathType pathType, BaseUnit.AttackType attackType, BaseTile startingTile, int pathLength){
-
-		if(pathType == PathType.Movement){
-			return FindMovementTiles(startingTile, pathLength);
-		}else if(pathType == PathType.Attack){
-			if(attackType == BaseUnit.AttackType.Circle){
-				return FindTilesInCircle(startingTile, pathLength);
-			}else if(attackType == BaseUnit.AttackType.Line){
-				return FindTilesInLine(startingTile, pathLength);
-			}else if(attackType == BaseUnit.AttackType.Arc){
-				return FindTilesInArc(startingTile, pathLength);
-			}else{
-				return new List<PathTile>();
-			}
-		}else{
-			return new List<PathTile>();
-		}
-	}
-
 	public List<PathTile> FindMovementTiles(BaseTile startingTile, int Radius){
 		// starting tiles
 		BaseTile[] startingTiles = startingTile.DirectlyAdjacentTiles();
@@ -148,29 +128,6 @@ public class PathManager : MonoBehaviour {
 			// switch out the recently added tiles
 			recentTiles = newRecentTiles;
 		}
-
-		return optionalTiles;
-	}
-
-	//	Attack path functions
-	
-	public List<PathTile> FindTilesInCircle(BaseTile startingTile, int Radius){
-		// resulting tiles to look at
-		List<PathTile> optionalTiles = new List<PathTile>();
-
-		return optionalTiles;
-	}
-
-	public List<PathTile> FindTilesInLine(BaseTile startingTile, int Length){
-		// resulting tiles to look at
-		List<PathTile> optionalTiles = new List<PathTile>();
-
-		return optionalTiles;
-	}
-
-	public List<PathTile> FindTilesInArc(BaseTile startingTile, int Arc){
-		// resulting tiles to look at
-		List<PathTile> optionalTiles = new List<PathTile>();
 
 		return optionalTiles;
 	}

@@ -75,7 +75,7 @@ public class BaseUnit : MonoBehaviour {
 	// active order information
 	protected int activeOrder = 0;
 	protected OrderType activeCommand = OrderType.Null;
-	protected List<PathManager.PathTile> activePathTiles;
+	protected List<PathManager.PathTile> activePathTiles = new List<PathManager.PathTile>();
 
 	/* 
 	*******************************************
@@ -148,23 +148,24 @@ public class BaseUnit : MonoBehaviour {
 
 	void TileClicked(TileClickedEvent e){
 		if(curState == UnitState.RecievingOrders){
-			int index = activePathTiles.FindIndex(x => x.CurrentTile == e.Tile);
-			if(index >= 0){
-				// if tile is active, set position of order
-				List<Vector3> orderPath = new List<Vector3>();
+			if(activePathTiles.Count > 0){
+				int index = activePathTiles.FindIndex(x => x.CurrentTile == e.Tile);
+				if(index >= 0){
+					// if tile is active, set position of order
+					List<Vector3> orderPath = new List<Vector3>();
 
-/* ***************************************************************************************************
-									WORK HERE
-*************************************************************************************************** */
+					// follow Path Tiles back to null to create list of path tiles
+					while(activePathTiles[index].CurrentTile != null){
+						orderPath.Add(activePathTiles[index].CurrentTile.transform.position);
 
+						index = activePathTiles.FindIndex(x => x.CurrentTile == activePathTiles[index].PreviousTile);
+					}
 
-				orderPath.Add(e.Tile.position);
-				// follow Path Tiles back to null to create list of path tiles
+					SetOrderValues(orderPath);
 
-				SetOrderValues(orderPath);
-
-				// and clear active tiles (as one was chosen)
-				ClearActiveTiles();
+					// and clear active tiles (as one was chosen)
+					ClearActiveTiles();
+				}
 			}else{
 				if(orderUI.activeSelf){// if UI is open, close UI
 					orderUI.SetActive(false);
@@ -233,7 +234,7 @@ public class BaseUnit : MonoBehaviour {
 		}else if(command == OrderType.Move){
 			DeterminePosition(maxMove);
 		}else if(command == OrderType.Attack){
-			DeterminePosition(attackRange); // change this to it's own function for finding the attack area (according to attack-pattern)
+			DetermineAttackPosition(attackRange);
 		}
 	}
 
@@ -252,7 +253,7 @@ public class BaseUnit : MonoBehaviour {
 			SetOrderValues(selfPositionList);
 		}else{
 			// find active path tiles
-			activePathTiles = pathManager.FindOptionalTiles(PathManager.PathType.Movement, attackType, curTile, maxMove);
+			activePathTiles = pathManager.FindMovementTiles(curTile, maxMove);
 
 			// display the tiles that can be clicked on
 			ShowActiveTiles(true);
@@ -310,17 +311,21 @@ public class BaseUnit : MonoBehaviour {
 	void CommandsInteractable(bool interact){
 		holdCommand.interactable = interact;
 		moveCommand.interactable = interact;
-		attackCommand.interactable = interact;
+		if(curTile == null || curTile.TypeOfTile == BaseTile.TileType.Water){
+			attackCommand.interactable = false;
+		}else{
+			attackCommand.interactable = interact;
+		}
 	}
 
 	// light/de-light active tiles
-	void ShowActiveTiles(bool show){
+	protected void ShowActiveTiles(bool show){
 		for(int i = 0; i < activePathTiles.Count; i++){
 			activePathTiles[i].CurrentTile.LightUp(show);
 		}
 	}
 
-	void ClearActiveTiles(){
+	protected void ClearActiveTiles(){
 		activeOrder = 0;
 		activeCommand = OrderType.Null;
 		ShowActiveTiles(false);
