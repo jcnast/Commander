@@ -34,12 +34,19 @@ public class BaseUnit : MonoBehaviour {
 	public Button orderOneButton;
 	public Button orderTwoAButton;
 	public Button orderTwoBButton;
-	public Sprite nullSprite;
 	public Button holdCommand;
-	public Sprite holdSprite;
 	public Button moveCommand;
-	public Sprite moveSprite;
 	public Button attackCommand;
+
+	// gameobject indicators
+	public GameObject orderOneIndicator;
+	public GameObject orderTwoAIndicator;
+	public GameObject orderTwoBIndicator;
+
+	// sprites
+	public Sprite nullSprite;
+	public Sprite holdSprite;
+	public Sprite moveSprite;
 	public Sprite attackSprite;
 
 	// singleton values that get references regularily
@@ -64,12 +71,15 @@ public class BaseUnit : MonoBehaviour {
 	// current state of the unit
 	protected UnitState curState;
 
+	// future position (if first command is move)
+	protected BaseTile nextTile;
+
 	// orders and their target positions
-	protected OrderType orderOne; // 1
+	protected OrderType orderOne = OrderType.Null; // 1
 	protected List<Vector3> orderOnePosition = new List<Vector3>();
-	protected OrderType orderTwoA; // 2
+	protected OrderType orderTwoA = OrderType.Null; // 2
 	protected List<Vector3> orderTwoAPosition = new List<Vector3>();
-	protected OrderType orderTwoB; // 3
+	protected OrderType orderTwoB = OrderType.Null; // 3
 	protected List<Vector3> orderTwoBPosition = new List<Vector3>();
 
 	// active order information
@@ -148,23 +158,31 @@ public class BaseUnit : MonoBehaviour {
 
 	void TileClicked(TileClickedEvent e){
 		if(curState == UnitState.RecievingOrders){
+			// if activePathTiles exist
 			if(activePathTiles.Count > 0){
-				int index = activePathTiles.FindIndex(x => x.CurrentTile == e.Tile);
+				// determine if clicked tile is active
+				int index = activePathTiles.FindIndex((x) => (x.CurrentTile == e.baseTile));
 				if(index >= 0){
 					// if tile is active, set position of order
 					List<Vector3> orderPath = new List<Vector3>();
 
 					// follow Path Tiles back to null to create list of path tiles
 					while(activePathTiles[index].CurrentTile != null){
+						// add tile to path
 						orderPath.Add(activePathTiles[index].CurrentTile.transform.position);
-
+						// find next tile
 						index = activePathTiles.FindIndex(x => x.CurrentTile == activePathTiles[index].PreviousTile);
+						// if no more in path, stop
+						if(index < 0){
+							break;
+						}
 					}
-
-					SetOrderValues(orderPath);
+					SetOrderValues(orderPath, e.baseTile);
 
 					// and clear active tiles (as one was chosen)
 					ClearActiveTiles();
+				}else{ // Tile is not a member of activePathTiles
+					// do nothing
 				}
 			}else{
 				if(orderUI.activeSelf){// if UI is open, close UI
@@ -177,6 +195,8 @@ public class BaseUnit : MonoBehaviour {
 	}
 
 	void UnitClicked(UnitClickedEvent e){
+		// always clear clickable tiles 
+		ClearActiveTiles();
 		if(e.Unit == transform){
 			if(curState == UnitState.Waiting){
 				// nothing?
@@ -187,6 +207,9 @@ public class BaseUnit : MonoBehaviour {
 				// set what can be clicked on
 				CommandsInteractable(false);
 				OrdersInteractable(true);
+
+				// show the order indicators
+				ShowIndicators(true);
 			}else if(curState == UnitState.DoingOrderOne){
 				// nothing?
 			}else if(curState == UnitState.ChoosingOrderTwo){
@@ -195,9 +218,11 @@ public class BaseUnit : MonoBehaviour {
 				// nothing?
 			}
 		}else{
-			// different unit was selected, remove clickable tiles and remove UI
+			// different unit was selected, remove UI
 			orderUI.SetActive(false);
-			ClearActiveTiles();
+
+			// hide the indicators
+			ShowIndicators(false);
 		}
 	}
 
@@ -246,14 +271,22 @@ public class BaseUnit : MonoBehaviour {
 
 	// highlight all tiles within range
 	void DeterminePosition(int numSquares){
+		// if this is the second order, use nextTile where appropriate
+		BaseTile tempTile;
+		if(curTile == nextTile){
+			tempTile = curTile;
+		}else{
+			tempTile = nextTile;
+		}
+
 		// if numSquares is 0, return current tile
 		if(numSquares == 0){
 			List<Vector3> selfPositionList = new List<Vector3>();
-			selfPositionList.Add(transform.position);
-			SetOrderValues(selfPositionList);
+			selfPositionList.Add(tempTile.transform.position);
+			SetOrderValues(selfPositionList, tempTile);
 		}else{
 			// find active path tiles
-			activePathTiles = pathManager.FindMovementTiles(curTile, maxMove);
+			activePathTiles = pathManager.FindMovementTiles(tempTile, maxMove);
 
 			// display the tiles that can be clicked on
 			ShowActiveTiles(true);
@@ -265,7 +298,7 @@ public class BaseUnit : MonoBehaviour {
 	}
 
 	// set each order's command and go-to position
-	void SetOrderValues(List<Vector3> position){
+	void SetOrderValues(List<Vector3> position, BaseTile tile){
 		// determine what sprite to use for representation of command
 		Sprite curSprite = nullSprite;
 		if(activeCommand == OrderType.Hold){
@@ -277,12 +310,34 @@ public class BaseUnit : MonoBehaviour {
 		}
 
 		if(activeOrder == 1){
+			if(activeCommand == OrderType.Move){
+				if(nextTile == tile){
+					// do nothing
+				}else{
+					// set new nextTile
+					nextTile = tile;
+					// and clear other orders
+
+					orderTwoA = OrderType.Null;
+					orderTwoAPosition = null;
+					orderTwoAButton.GetComponent<Image>().sprite = nullSprite;
+
+					orderTwoB = OrderType.Null;
+					orderTwoBPosition = null;
+					orderTwoBButton.GetComponent<Image>().sprite = nullSprite;
+				}
+			}
+
 			// set values of orderOne
 			orderOne = activeCommand;
 			orderOnePosition = position;
 
 			// change sprite to indicate order's command
 			orderOneButton.GetComponent<Image>().sprite = curSprite;
+
+			// move the indicator to the specific tile with appropriate image
+			orderOneIndicator.GetComponent<SpriteRenderer>().sprite = curSprite;
+			orderOneIndicator.transform.position = tile.transform.position;
 		}else if(activeOrder == 2){
 			// set values of orderTwoA
 			orderTwoA = activeCommand;
@@ -290,6 +345,10 @@ public class BaseUnit : MonoBehaviour {
 
 			// change sprite to indicate order's command
 			orderTwoAButton.GetComponent<Image>().sprite = curSprite;
+
+			// move the indicator to the specific tile with appropriate image
+			orderTwoAIndicator.GetComponent<SpriteRenderer>().sprite = curSprite;
+			orderTwoAIndicator.transform.position = tile.transform.position;
 		}else if(activeOrder == 3){
 			// set values of orderTwoB
 			orderTwoB = activeCommand;
@@ -297,14 +356,32 @@ public class BaseUnit : MonoBehaviour {
 
 			// change sprite to indicate order's command
 			orderTwoBButton.GetComponent<Image>().sprite = curSprite;
+
+			// move the indicator to the specific tile with appropriate image
+			orderTwoBIndicator.GetComponent<SpriteRenderer>().sprite = curSprite;
+			orderTwoBIndicator.transform.position = tile.transform.position;
 		}
+		// show the UI for the unit again
+		orderUI.SetActive(true);
+
+		// with the appropriate clickable things
+		CommandsInteractable(false);
+		OrdersInteractable(true);
+
+		// display the indicators as they can be shown now
+		ShowIndicators(true);
 	}
 
 	// set the order interactability
 	void OrdersInteractable(bool interact){
 		orderOneButton.interactable = interact;
-		orderTwoAButton.interactable = interact;
-		orderTwoBButton.interactable = interact;
+		if(orderOne != OrderType.Null){
+			orderTwoAButton.interactable = interact;
+			orderTwoBButton.interactable = interact;
+		}else{
+			orderTwoAButton.interactable = false;
+			orderTwoBButton.interactable = false;
+		}
 	}
 
 	// set the command interactability
@@ -315,6 +392,27 @@ public class BaseUnit : MonoBehaviour {
 			attackCommand.interactable = false;
 		}else{
 			attackCommand.interactable = interact;
+		}
+	}
+
+	// set the indicators visibility
+	void ShowIndicators(bool visible){
+		if(orderOne != OrderType.Null){
+			orderOneIndicator.SetActive(visible);
+		}else{
+			orderOneIndicator.SetActive(false);
+		}
+
+		if(orderTwoA != OrderType.Null){
+			orderTwoAIndicator.SetActive(visible);
+		}else{
+			orderTwoAIndicator.SetActive(false);
+		}
+
+		if(orderTwoB != OrderType.Null){
+			orderTwoBIndicator.SetActive(visible);
+		}else{
+			orderTwoBIndicator.SetActive(false);
 		}
 	}
 
@@ -341,7 +439,8 @@ public class BaseUnit : MonoBehaviour {
 	// tile tjat unit is currently on
 	public BaseTile CurTile{
 		get {return curTile;}
-		set {curTile = value;}
+		set {curTile = value;
+			 nextTile = value;}
 	}
 
 	public UnitState CurState{

@@ -10,11 +10,19 @@ public class ArcherUnit : BaseUnit {
 	*/
 
 	protected override void DetermineAttackPosition(int Range){
+		// if this is the second order, use nextTile where appropriate
+		BaseTile tempTile;
+		if(curTile == nextTile){
+			tempTile = curTile;
+		}else{
+			tempTile = nextTile;
+		}
+
 		// resulting tiles to look at
 		List<PathManager.PathTile> optionalTiles = new List<PathManager.PathTile>();
 
 		// starting tiles array
-		BaseTile[] startingTiles = curTile.AllAdjacentTiles();
+		BaseTile[] startingTiles = tempTile.AllAdjacentTiles();
 		// tile position determined by ints
 		/*
 			0, 1, 2,

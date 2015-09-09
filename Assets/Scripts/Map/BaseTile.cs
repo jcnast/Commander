@@ -48,7 +48,7 @@ public class BaseTile : MonoBehaviour {
 				// check if click was released
 				if(inputManager.ClickUp){
 					// raise TileClickedEvent
-					Events.instance.Raise( new TileClickedEvent(transform));
+					Events.instance.Raise( new TileClickedEvent(transform, this));
 				}
 			}
 		}

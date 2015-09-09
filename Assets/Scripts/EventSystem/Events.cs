@@ -68,9 +68,11 @@ public class IssueOrdersEvent: GameEvent{
 // when a tile was clicked
 public class TileClickedEvent: GameEvent{
 	public Transform Tile;
+	public BaseTile baseTile;
 
-	public TileClickedEvent(Transform tile){
+	public TileClickedEvent(Transform tile, BaseTile basetile){
 		Tile = tile;
+		baseTile = basetile;
 	}
 }
 
