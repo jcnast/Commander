@@ -234,6 +234,9 @@ public class BaseUnit : MonoBehaviour {
 
 	// Change the active order according to what button was pressed
 	void ChangeActiveOrder(int currentOrder){
+		// raise event that the unit has been ordered in
+		Events.instance.Raise( new UnitOrderedInEvent (transform));
+
 		// set the current active order
 		activeOrder = currentOrder;
 
@@ -361,15 +364,20 @@ public class BaseUnit : MonoBehaviour {
 			orderTwoBIndicator.GetComponent<SpriteRenderer>().sprite = curSprite;
 			orderTwoBIndicator.transform.position = tile.transform.position;
 		}
-		// show the UI for the unit again
-		orderUI.SetActive(true);
-
-		// with the appropriate clickable things
-		CommandsInteractable(false);
-		OrdersInteractable(true);
-
 		// display the indicators as they can be shown now
 		ShowIndicators(true);
+
+		// if the unit is ordered out, raise event
+		if(orderOne != OrderType.Null && orderTwoA != OrderType.Null && orderTwoB != OrderType.Null){
+			Events.instance.Raise( new UnitOrderedOutEvent (transform));
+		}else{// otherwise, show the UI to choose the remaining orders
+			// show the UI for the unit again
+			orderUI.SetActive(true);
+
+			// with the appropriate clickable things
+			CommandsInteractable(false);
+			OrdersInteractable(true);
+		}
 	}
 
 	// set the order interactability

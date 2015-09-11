@@ -84,3 +84,30 @@ public class UnitClickedEvent: GameEvent{
 		Unit = unit;
 	}
 }
+
+// when a unit is ordered out
+public class UnitOrderedOutEvent: GameEvent{
+	public Transform Unit;
+
+	public UnitOrderedOutEvent(Transform unit){
+		Unit = unit;
+	}
+}
+
+// when a unit stops being ordered out
+public class UnitOrderedInEvent: GameEvent{
+	public Transform Unit;
+
+	public UnitOrderedInEvent(Transform unit){
+		Unit = unit;
+	}
+}
+
+// when all units for a palyer are ordered out
+public class AllUnitsOrderedOutEvent: GameEvent{
+	public bool OrderedOut;
+
+	public AllUnitsOrderedOutEvent(bool orderedOut){
+		OrderedOut = orderedOut;
+	}
+}

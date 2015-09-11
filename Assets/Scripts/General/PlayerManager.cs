@@ -18,6 +18,7 @@ public class PlayerManager : MonoBehaviour {
 
 	public List<GameObject> unitList = new List<GameObject>();
 	private List<Transform> activeUnits = new List<Transform>();
+	private List<Transform> orderedOutUnits = new List<Transform>();
 
 	void OnDestroy(){
 		Events.instance.RemoveListener<PlaceUnitsEvent> (PlaceUnits);
@@ -25,6 +26,8 @@ public class PlayerManager : MonoBehaviour {
 		Events.instance.RemoveListener<IssueOrdersEvent> (IssueOrders);
 		Events.instance.RemoveListener<TileClickedEvent> (TileClicked);
 		Events.instance.RemoveListener<UnitClickedEvent> (UnitClicked);
+		Events.instance.RemoveListener<UnitOrderedOutEvent> (UnitOrderedOut);
+		Events.instance.RemoveListener<UnitOrderedInEvent> (UnitOrderedIn);
 	}
 
 	void Awake(){
@@ -33,7 +36,15 @@ public class PlayerManager : MonoBehaviour {
 		Events.instance.AddListener<IssueOrdersEvent> (IssueOrders);
 		Events.instance.AddListener<TileClickedEvent> (TileClicked);
 		Events.instance.AddListener<UnitClickedEvent> (UnitClicked);	
+		Events.instance.AddListener<UnitOrderedOutEvent> (UnitOrderedOut);
+		Events.instance.AddListener<UnitOrderedInEvent> (UnitOrderedIn);
 	}
+
+	/* 
+	*******************************************
+				Event Functions
+	*******************************************
+	*/
 
 	// what to do when units should start to be placed
 	void PlaceUnits(PlaceUnitsEvent e){
@@ -75,8 +86,24 @@ public class PlayerManager : MonoBehaviour {
 		}
 	}
 
+	// start issuing orders to units
 	void IssueOrders(IssueOrdersEvent e){
 		curState = PlayerState.Commanding;
+	}
+
+	// a unit has been ordered out
+	void UnitOrderedOut(UnitOrderedOutEvent e){
+		orderedOutUnits.Add(e.Unit);
+
+		if(AllUnitsOrderedOut()){
+			Events.instance.Raise(new AllUnitsOrderedOutEvent(true));
+		}
+	}
+
+	void UnitOrderedIn(UnitOrderedInEvent e){
+		orderedOutUnits.Remove(e.Unit);
+
+		Events.instance.Raise(new AllUnitsOrderedOutEvent(true));
 	}
 
 	// what to do when a tile was clicked
@@ -84,7 +111,39 @@ public class PlayerManager : MonoBehaviour {
 		
 	}
 
+	// what to do when a unit is clicked
 	void UnitClicked(UnitClickedEvent e){
 
+	}
+
+	/* 
+	*******************************************
+				Assist Functions
+	*******************************************
+	*/
+
+	public bool AllUnitsOrderedOut(){
+		// if all units have been ordered out
+		bool allOrderedOut = true;
+
+		// check each unit
+		for(int i = 0; i < activeUnits.Count; i++){
+			bool unitOrderedOut = false;
+			for(int j = 0; j < orderedOutUnits.Count; j++){
+				if(activeUnits[i] == orderedOutUnits[j]){
+					unitOrderedOut = true;
+					break;
+				}
+			}
+
+			// update allOrderedOut if accordingly
+			allOrderedOut = unitOrderedOut;
+
+			if(!unitOrderedOut){
+				break;
+			}
+		}
+
+		return allOrderedOut;
 	}
 }
