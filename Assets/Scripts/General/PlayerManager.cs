@@ -103,7 +103,7 @@ public class PlayerManager : MonoBehaviour {
 	void UnitOrderedIn(UnitOrderedInEvent e){
 		orderedOutUnits.Remove(e.Unit);
 
-		Events.instance.Raise(new AllUnitsOrderedOutEvent(true));
+		Events.instance.Raise(new AllUnitsOrderedOutEvent(false));
 	}
 
 	// what to do when a tile was clicked
